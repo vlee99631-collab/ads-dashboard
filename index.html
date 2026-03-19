@@ -11,18 +11,14 @@
   --bg:#0d0f14;--surface:#141720;--surface2:#1c2030;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.16);
   --text:#eceef4;--muted:#a0aab8;--dim:#6b7a94;
-  --green:#22d97a;--green-bg:rgba(34,217,122,0.08);--green-bd:rgba(34,217,122,0.28);
-  --amber:#f5a623;--amber-bg:rgba(245,166,35,0.08);--amber-bd:rgba(245,166,35,0.28);
-  --red:#ff4d6d;--red-bg:rgba(255,77,109,0.08);--red-bd:rgba(255,77,109,0.28);
-  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.08);--purple-bd:rgba(167,139,250,0.28);
-  --teal:#2dd4bf;--teal-bg:rgba(45,212,191,0.08);--teal-bd:rgba(45,212,191,0.28);
-  --blue:#38bdf8;--sidebar-w:224px;
+  --green:#22d97a;--green-bg:rgba(34,217,122,0.08);
+  --amber:#f5a623;--red:#ff4d6d;
+  --purple:#a78bfa;--blue:#38bdf8;--teal:#2dd4bf;--gold:#f59e0b;
+  --sidebar-w:224px;
   --font:'Microsoft YaHei','微软雅黑','PingFang SC','Helvetica Neue',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;font-size:14px}
-
-/* ══ SIDEBAR ══ */
 .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:200}
 .sidebar-logo{padding:1.4rem 1.25rem .9rem;border-bottom:1px solid var(--border2)}
 .logo-badge{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:var(--text)}
@@ -37,30 +33,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .nav-item.active svg{opacity:1;color:var(--green)}
 .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);font-size:12px;color:var(--dim);line-height:1.8;font-weight:600}
 .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;box-shadow:0 0 5px var(--green)}
-
-/* ══ MAIN ══ */
 .main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
 .topbar{height:58px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100}
 .page-title{font-size:17px;font-weight:800;color:var(--text)}
 .page-sub{font-size:13px;color:var(--muted);font-weight:600;margin-top:1px}
 .topbar-right{display:flex;align-items:center;gap:10px}
-.date-chip{font-size:13px;color:var(--muted);padding:5px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);font-weight:700}
+.date-chip{font-size:13px;color:var(--muted);padding:5px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);font-weight:700;display:none}
 .btn-sm{display:none;align-items:center;gap:6px;padding:7px 14px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:var(--font);cursor:pointer;font-weight:700}
 .btn-sm:hover{color:var(--text);background:var(--surface2)}
-
-/* ══ PANELS ══ */
 .panel{display:none;flex:1}
 .panel.active{display:block}
 .page-body{padding:2rem;max-width:1800px;margin:0 auto}
 
-/* ══ IMPORT ══ */
+/* IMPORT */
 .import-wrap{min-height:calc(100vh - 58px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
 .import-wrap::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(34,217,122,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(167,139,250,.05) 0%,transparent 60%)}
 .import-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-align:center;line-height:1.1;margin-bottom:.6rem;letter-spacing:-.02em}
 .import-title span{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .import-sub{font-size:15px;color:var(--muted);text-align:center;margin-bottom:2rem;line-height:1.7;font-weight:600}
 .dropzone{width:100%;max-width:540px;border:1.5px dashed var(--border2);border-radius:20px;padding:2.25rem 2rem;text-align:center;background:var(--surface);transition:all .25s;cursor:pointer}
-.dropzone.over,.dropzone:hover{border-color:var(--green);background:var(--green-bg);transform:translateY(-2px)}
+.dropzone.over,.dropzone:hover{border-color:var(--green);background:rgba(34,217,122,.08);transform:translateY(-2px)}
 .drop-icon{width:52px;height:52px;margin:0 auto .9rem;border-radius:14px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center}
 .dropzone h3{font-size:15px;font-weight:700;margin-bottom:.4rem}
 .dropzone p{font-size:13px;color:var(--muted);margin-bottom:1.1rem;line-height:1.6;font-weight:600}
@@ -82,59 +74,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .prog-txt{margin-top:.6rem;font-size:12px;color:var(--muted);display:none;font-weight:600}
 .prog-txt.show{display:block}
 
-/* ══ DASHBOARD ══ */
-.sum-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.75rem}
+/* DASHBOARD */
+.sum-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.75rem}
 .scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;position:relative;overflow:hidden}
 .scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .scard .slbl{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;font-weight:800}
-.scard .sval{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.2rem}
+.scard .sval{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.2rem}
 .scard .sdesc{font-size:12px;color:var(--muted);font-weight:700}
-
-/* ══ TOGGLE BARS ══ */
-.toggle-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.controls-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:10px}
+.toggle-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .toggle-row-lbl{font-size:12px;color:var(--dim);font-weight:800;letter-spacing:.06em;margin-right:4px;white-space:nowrap}
-.tbtn{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .18s;font-family:var(--font);user-select:none;white-space:nowrap}
+.tbtn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .18s;font-family:var(--font);user-select:none;white-space:nowrap}
 .tbtn .tbdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .tbtn .tbchk{font-size:11px;opacity:0;margin-left:1px}
 .tbtn.on .tbchk{opacity:.85}
-
-/* 指标按钮颜色 */
-.tbtn-spend{border-color:var(--blue);color:var(--blue)}
-.tbtn-spend.on{background:rgba(56,189,248,.12)}
-.tbtn-sales{border-color:#bbb;color:#bbb}
-.tbtn-sales.on{background:rgba(187,187,187,.1)}
-.tbtn-cr{border-color:#86efac;color:#86efac}
-.tbtn-cr.on{background:rgba(134,239,172,.1)}
-
-/* 分类筛选按钮颜色 */
-.ftab{padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:var(--font);transition:all .18s;white-space:nowrap}
+.ftab{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-family:var(--font);transition:all .18s;white-space:nowrap}
 .ftab:hover{color:var(--text)}
-.ftab.fall{border-color:var(--border2)}
-.ftab.fall.on{background:var(--text);color:#0d0f14;border-color:var(--text)}
-
-/* tier筛选按钮 */
-.tier-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
-
-/* sections */
 .cat-section{margin-bottom:2.5rem}
-.cat-hdr{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:10px;border-bottom:1px solid var(--border2)}
+.cat-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;padding-bottom:10px;border-bottom:1px solid var(--border2)}
 .cat-pill{padding:4px 14px;border-radius:100px;font-size:13px;font-weight:800}
 .cat-cnt{font-size:13px;color:var(--muted);font-weight:700}
 .cat-desc-txt{font-size:12px;color:var(--dim);margin-left:auto;font-weight:700}
-/* 分类规则提示 */
-.cat-rules{font-size:11px;color:var(--dim);font-weight:600;margin-top:4px;line-height:1.6;padding:6px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid}
-
-/* 每行5列 */
+.cat-rules{font-size:11px;color:var(--dim);font-weight:600;margin-bottom:10px;line-height:1.7;padding:7px 12px;background:var(--surface2);border-radius:8px;border-left:2px solid}
 .pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 @media(max-width:1400px){.pgrid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:1100px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.pgrid{grid-template-columns:repeat(2,1fr)}}
-
 .pcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 13px 11px;transition:transform .2s,border-color .2s}
 .pcard:hover{transform:translateY(-2px);border-color:var(--border2)}
 .pcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:6px}
 .pname{font-size:12px;font-weight:800;letter-spacing:-.01em;line-height:1.35;word-break:break-all}
-.pcard-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.pcard-badges{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
 .pbadge{width:8px;height:8px;border-radius:50%}
 .tier-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px;white-space:nowrap;letter-spacing:.04em;line-height:1.4}
 .tier-1{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
@@ -143,24 +113,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .tier-4{background:rgba(107,114,128,.12);color:#9ca3af;border:1px solid rgba(107,114,128,.25)}
 .tier-5{background:rgba(34,217,122,.1);color:#22d97a;border:1px solid rgba(34,217,122,.22)}
 .tier-6{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.22)}
-/* 异动标签 */
-.signal-tag{font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px;white-space:nowrap;letter-spacing:.02em;line-height:1.4;max-width:90px;text-align:center}
+.signal-tag{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;line-height:1.4;max-width:88px;text-align:right;word-break:break-all}
 .cwrap{position:relative;height:84px;margin-bottom:9px}
 .mrow{display:grid;gap:5px}
 .met{display:flex;flex-direction:column;align-items:center;background:var(--surface2);border-radius:8px;padding:6px 4px}
 .mval{font-size:13px;font-weight:800;line-height:1.2}
 .mlbl{font-size:10px;color:var(--muted);letter-spacing:.04em;font-weight:700;margin-top:1px}
-
 #noDataMsg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:2rem}
 .goto-import{margin-top:1.25rem;display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--green);color:#0d1a11;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer}
-
-/* controls section */
-.controls-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
-
-<!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-badge"><span class="logo-dot"></span>广告监控</div>
@@ -182,12 +145,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     </div>
   </nav>
   <div class="sidebar-footer">
-    <span class="status-dot"></span>本地运行 · 数据不上传<br>
-    XSX / AQX 产品系列
+    <span class="status-dot"></span>本地运行 · 数据不上传<br>XSX / AQX 产品系列
   </div>
 </aside>
 
-<!-- ══ MAIN ══ -->
 <div class="main">
   <div class="topbar">
     <div>
@@ -195,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
       <div class="page-sub" id="pageSub">上传广告活动 xlsx 文件开始分析</div>
     </div>
     <div class="topbar-right">
-      <div class="date-chip" id="dateChip" style="display:none"></div>
+      <div class="date-chip" id="dateChip"></div>
       <button class="btn-sm" id="btnReimport">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
         重新导入
@@ -203,7 +164,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     </div>
   </div>
 
-  <!-- ══ IMPORT PANEL ══ -->
   <div class="panel active" id="panel-import">
     <div class="import-wrap">
       <h1 class="import-title">导入日数据<br><span>一键生成趋势看板</span></h1>
@@ -238,9 +198,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     </div>
   </div>
 
-  <!-- ══ DASHBOARD PANEL ══ -->
   <div class="panel" id="panel-dashboard">
-    <div id="noDataMsg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:2rem">
+    <div id="noDataMsg">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;opacity:.15;margin-bottom:1rem">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
       </svg>
@@ -250,94 +209,74 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     </div>
     <div class="page-body" id="dashBody" style="display:none">
       <div class="sum-row" id="sumRow"></div>
-
-      <!-- 综合控制面板 -->
       <div class="controls-wrap">
-        <!-- 指标切换 -->
         <div class="toggle-row">
           <span class="toggle-row-lbl">显示指标：</span>
-          <div class="tbtn tbtn-spend on" data-m="spend" onclick="toggleMetric('spend')">
+          <div class="tbtn on" data-m="spend" onclick="toggleMetric('spend')" style="border-color:var(--blue);color:var(--blue);background:rgba(56,189,248,.12)">
             <span class="tbdot" style="background:var(--blue)"></span>花费<span class="tbchk">✓</span>
           </div>
-          <div class="tbtn tbtn-sales on" data-m="sales" onclick="toggleMetric('sales')">
+          <div class="tbtn on" data-m="sales" onclick="toggleMetric('sales')" style="border-color:#bbb;color:#bbb;background:rgba(187,187,187,.1)">
             <span class="tbdot" style="background:#bbb"></span>广告销量<span class="tbchk">✓</span>
           </div>
-          <div class="tbtn tbtn-cr on" data-m="cr" onclick="toggleMetric('cr')">
+          <div class="tbtn on" data-m="cr" onclick="toggleMetric('cr')" style="border-color:#86efac;color:#86efac;background:rgba(134,239,172,.1)">
             <span class="tbdot" style="background:#86efac"></span>CR%<span class="tbchk">✓</span>
           </div>
         </div>
-
-        <!-- 分类筛选 -->
         <div class="toggle-row" id="catFilterBar">
           <span class="toggle-row-lbl">分类筛选：</span>
         </div>
-
-        <!-- 产品定位筛选 -->
         <div class="toggle-row" id="tierFilterBar">
           <span class="toggle-row-lbl">产品定位：</span>
-          <div class="tbtn on" data-tier="all" onclick="toggleTier('all')" style="border-color:var(--muted);color:var(--muted);background:rgba(160,170,184,.1)">
-            全部<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="1" onclick="toggleTier('1')" style="border-color:#ffd700;color:#ffd700">
-            <span class="tbdot" style="background:#ffd700"></span>头部热销<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="2" onclick="toggleTier('2')" style="border-color:var(--blue);color:var(--blue)">
-            <span class="tbdot" style="background:var(--blue)"></span>重点<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="3" onclick="toggleTier('3')" style="border-color:var(--purple);color:var(--purple)">
-            <span class="tbdot" style="background:var(--purple)"></span>潜力<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="4" onclick="toggleTier('4')" style="border-color:#9ca3af;color:#9ca3af">
-            <span class="tbdot" style="background:#9ca3af"></span>其他备注<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="5" onclick="toggleTier('5')" style="border-color:var(--green);color:var(--green)">
-            <span class="tbdot" style="background:var(--green)"></span>新品<span class="tbchk">✓</span>
-          </div>
-          <div class="tbtn on" data-tier="6" onclick="toggleTier('6')" style="border-color:var(--red);color:var(--red)">
-            <span class="tbdot" style="background:var(--red)"></span>清仓<span class="tbchk">✓</span>
-          </div>
+          <div class="tbtn on" data-tier="all" onclick="toggleTier('all')" style="border-color:var(--muted);color:var(--muted);background:rgba(160,170,184,.1)">全部<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="1" onclick="toggleTier('1')" style="border-color:#ffd700;color:#ffd700"><span class="tbdot" style="background:#ffd700"></span>头部热销<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="2" onclick="toggleTier('2')" style="border-color:var(--blue);color:var(--blue)"><span class="tbdot" style="background:var(--blue)"></span>重点<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="3" onclick="toggleTier('3')" style="border-color:var(--purple);color:var(--purple)"><span class="tbdot" style="background:var(--purple)"></span>潜力<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="4" onclick="toggleTier('4')" style="border-color:#9ca3af;color:#9ca3af"><span class="tbdot" style="background:#9ca3af"></span>其他备注<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="5" onclick="toggleTier('5')" style="border-color:var(--green);color:var(--green)"><span class="tbdot" style="background:var(--green)"></span>新品<span class="tbchk">✓</span></div>
+          <div class="tbtn on" data-tier="6" onclick="toggleTier('6')" style="border-color:var(--red);color:var(--red)"><span class="tbdot" style="background:var(--red)"></span>清仓<span class="tbchk">✓</span></div>
         </div>
       </div>
-
       <div id="secs"></div>
     </div>
   </div>
 </div>
 
 <script>
-/* ══════════════════════════════════════
-   分类配置 — 5个分类，新顺序
-   销量增长 > 销量下降 > 花费骤降 > 转化率走低 > 低基数
-══════════════════════════════════════ */
+/* ══ 6分类配置 ══ */
 const CATS = {
-  '广告销量增长':    {color:'#22d97a',bg:'rgba(34,217,122,.1)', bd:'rgba(34,217,122,.3)', spendC:'#38bdf8',salesC:'#22d97a',crC:'#86efac',
-    desc:'近期广告销量明显上升',
-    rules:'①今日销量≥前3日均180% (基础≥8) ②今日销量≥前1日200% ③近3日均≥前7日均150%'},
-  '广告销量下滑':    {color:'#a78bfa',bg:'rgba(167,139,250,.1)',bd:'rgba(167,139,250,.3)', spendC:'#38bdf8',salesC:'#a78bfa',crC:'#86efac',
-    desc:'近期广告销量明显下滑',
-    rules:'①今日销量<5 ②今日销量≤前3日均60% ③今日销量≤前1日50% ④近3日均≤前7日均70%'},
-  '花费骤降':        {color:'#f5a623',bg:'rgba(245,166,35,.1)', bd:'rgba(245,166,35,.3)', spendC:'#f5a623',salesC:'#facc15',crC:'#86efac',
+  '广告销量增长':   {color:'#22d97a',bg:'rgba(34,217,122,.1)', bd:'rgba(34,217,122,.3)', spendC:'#38bdf8',salesC:'#22d97a',crC:'#86efac',
+    desc:'今日或近期广告销量明显上升',
+    rules:'① 今日销量≥前3日均×180%（基础≥8）② 今日销量≥前1日×200%（基础≥8）③ 近3日均≥前7日均×150%'},
+  '广告销量下滑':   {color:'#a78bfa',bg:'rgba(167,139,250,.1)',bd:'rgba(167,139,250,.3)', spendC:'#38bdf8',salesC:'#a78bfa',crC:'#86efac',
+    desc:'今日或近期广告销量明显下滑',
+    rules:'① 今日销量<5 ② 今日销量≤前3日均×60% ③ 今日销量≤前1日×50% ④ 近3日均≤前7日均×70%'},
+  '花费骤降':       {color:'#f5a623',bg:'rgba(245,166,35,.1)', bd:'rgba(245,166,35,.3)', spendC:'#f5a623',salesC:'#facc15',crC:'#86efac',
     desc:'近期花费大幅下降，需排查预算或竞价',
-    rules:'①今日花费≤$30 ②今日花费≤前3日均50% ③近3日均≤前7日均80%'},
-  '转化率走低显著':  {color:'#ff4d6d',bg:'rgba(255,77,109,.1)',bd:'rgba(255,77,109,.3)', spendC:'#38bdf8',salesC:'#fb923c',crC:'#ff4d6d',
-    desc:'CR 明显下滑，流量质量或转化承接需关注',
-    rules:'①今日CR<4% ②今日CR≤前3日均70% ③近3日均CR≤前7日均80%'},
-  '低基数正常运营':  {color:'#2dd4bf',bg:'rgba(45,212,191,.1)', bd:'rgba(45,212,191,.3)', spendC:'#38bdf8',salesC:'#2dd4bf',crC:'#86efac',
-    desc:'日均广告销量<8，波动属正常范围，多为清仓/新品',
-    rules:'日均广告销量<8，忽略指标波动，正常运营'},
+    rules:'① 今日花费≤$30 ② 今日花费≤前3日均×50% ③ 近3日均花费≤前7日均×80%'},
+  '转化率走低显著': {color:'#ff4d6d',bg:'rgba(255,77,109,.1)',bd:'rgba(255,77,109,.3)', spendC:'#38bdf8',salesC:'#fb923c',crC:'#ff4d6d',
+    desc:'CR明显下滑，流量质量或转化承接需关注',
+    rules:'① 今日CR<4% ② 今日CR≤前3日均×70% ③ 近3日均CR≤前7日均×80%'},
+  '无异常成熟产品': {color:'#38bdf8',bg:'rgba(56,189,248,.1)', bd:'rgba(56,189,248,.3)', spendC:'#38bdf8',salesC:'#38bdf8',crC:'#86efac',
+    desc:'日均广告销量≥8，数据平稳，无明显异动',
+    rules:'日均销量≥8，未触发增长/下滑/花费/转化率任何异动阈值，运营稳定'},
+  '低基数正常运营': {color:'#2dd4bf',bg:'rgba(45,212,191,.1)', bd:'rgba(45,212,191,.3)', spendC:'#38bdf8',salesC:'#2dd4bf',crC:'#86efac',
+    desc:'日均广告销量<8，波动属正常范围，多为新品/清仓',
+    rules:'日均广告销量<8，指标波动较大属正常现象，忽略异动判断'},
 };
-// 展示顺序
-const ORDER=['广告销量增长','广告销量下滑','花费骤降','转化率走低显著','低基数正常运营'];
-const TIER_LABELS={1:'头部热销',2:'重点',3:'潜力',4:'其他',5:'新品',6:'清仓'};
-const PAGE_META={import:{title:'基础数据导入',sub:'上传广告活动 xlsx 文件开始分析'},dashboard:{title:'数据看板',sub:'产品广告趋势分类监控（异动诊断）'}};
+const ORDER = ['广告销量增长','广告销量下滑','花费骤降','转化率走低显著','无异常成熟产品','低基数正常运营'];
+const TIER_LABELS = {1:'头部热销',2:'重点',3:'潜力',4:'其他',5:'新品',6:'清仓'};
+const PAGE_META = {
+  import:    {title:'基础数据导入',sub:'上传广告活动 xlsx 文件开始分析'},
+  dashboard: {title:'数据看板',    sub:'产品广告趋势异动诊断（6分类）'},
+};
 
-/* ══ 产品定位映射 ══ */
+/* ══ 产品定位表 ══ */
 const PROD_MAP={"XSX61W":{"display":"XSX61W/PVC/头部热销","tier":1},"AQX12A":{"display":"AQX12A/PVC/头部热销","tier":1},"XSX74W":{"display":"XSX74W/PVC/头部热销","tier":1},"XSX09W":{"display":"XSX09W/PVC/头部热销","tier":1},"XSX32":{"display":"XSX32/牛勃朗/头部热销","tier":1},"XSX42K":{"display":"XSX42K/牛勃朗/头部热销","tier":1},"XSX116W":{"display":"XSX116W/PVC/冬季重点新品","tier":5},"XSX60W":{"display":"XSX60W/PVC/重点","tier":2},"XSX101W":{"display":"XSX101W/PVC/热销新品","tier":5},"XSX67W":{"display":"XSX67W/橡胶/重点","tier":2},"XSX14T":{"display":"XSX14T/牛勃朗/头部热销","tier":1},"XSX44W":{"display":"XSX44W/PVC/重点","tier":2},"XSX03W":{"display":"XSX03W/牛勃朗/重点","tier":2},"XSX46W":{"display":"XSX46W/PVC/重点","tier":2},"XSX95K":{"display":"XSX95K/牛勃朗/重点","tier":2},"XSX96W":{"display":"XSX96W/牛勃朗/重点","tier":2},"XSX75W":{"display":"XSX75W/PVC/重点","tier":2},"XSX84W":{"display":"XSX84W/橡胶/重点","tier":2},"XSX48K":{"display":"XSX48K/PVC/重点","tier":2},"XSX55W":{"display":"XSX55W/牛勃朗/重点","tier":2},"XSX25W":{"display":"XSX25W/PVC/重点","tier":2},"XSX07":{"display":"XSX07/牛勃朗/garden重点","tier":2},"XSX72":{"display":"XSX72/PVC/重点","tier":2},"XSX102W":{"display":"XSX102W/PVC/热销新品","tier":5},"XSX119W":{"display":"XSX119W/牛勃朗/冬季潜力新品","tier":3},"XSX59":{"display":"XSX59/PVC/重点","tier":2},"XSX50K":{"display":"XSX50K/橡胶/重点","tier":2},"XSX88W":{"display":"XSX88W/PVC/清仓","tier":6},"XSX70W":{"display":"XSX70W/PVC/清仓","tier":6},"XSX58":{"display":"XSX58/牛勃朗/重点","tier":2},"XSX63W":{"display":"XSX63W/牛勃朗/重点","tier":2},"XSX93W":{"display":"XSX93W/牛勃朗/已优化低评分","tier":4},"XSX54W":{"display":"XSX54W/PVC/常规一般","tier":4},"XSX122":{"display":"XSX122/牛勃朗/冬季重点新品","tier":5},"XSX125K":{"display":"XSX125K/牛勃朗/潜力新品","tier":3},"XSX16W":{"display":"XSX16W/牛勃朗/重点","tier":2},"XSX117K":{"display":"XSX117K/PVC/潜力重点新品","tier":3},"XSX68W":{"display":"XSX68W/橡胶/重点","tier":2},"XSX49K":{"display":"XSX49K/PVC/常规一般","tier":4},"XSX111W":{"display":"XSX111W/PVC/潜力新品","tier":3},"XSX11":{"display":"XSX11/牛勃朗/冬季重点","tier":2},"XSX121":{"display":"XSX121/牛勃朗/潜力重点新品","tier":3},"XSX15W":{"display":"XSX15W/牛勃朗/冬季重点","tier":2},"XSX82":{"display":"XSX82/牛勃朗/潜力甲板靴","tier":3},"XSX01":{"display":"XSX01/牛勃朗/冬季重点","tier":2},"XSX128W":{"display":"XSX128W/PVC/潜力新品","tier":3},"XSX26":{"display":"XSX26/牛勃朗/冬季重点","tier":2},"XSX108W":{"display":"XSX108W/PVC/针织筒新品","tier":5},"XSX118W":{"display":"XSX118W/PVC/潜力时尚新品","tier":3},"XSX21":{"display":"XSX21/牛勃朗/garden重点","tier":2},"XSX33":{"display":"XSX33/牛勃朗/冬季重点","tier":2},"XSX99":{"display":"XSX99/橡胶/潜力甲板靴","tier":3},"XSX80":{"display":"XSX80/牛勃朗/低价自然清","tier":4},"XSX90":{"display":"XSX90/PVC/常规一般","tier":4},"XSX69W":{"display":"XSX69W/橡胶/冬季重点","tier":2},"XSX37":{"display":"XSX37/牛勃朗/常规一般","tier":4},"XSX34W":{"display":"XSX34W/牛勃朗/常规一般","tier":4},"XSX45W":{"display":"XSX45W/PVC/常规一般","tier":4},"XSX105W":{"display":"XSX105W/橡胶/新品","tier":5},"XSX43":{"display":"XSX43/牛勃朗/常规一般","tier":4},"XSX107W":{"display":"XSX107W/牛勃朗/已优化重推","tier":2},"XSX109":{"display":"XSX109/牛勃朗/deck shoes新品","tier":5},"XSX104W":{"display":"XSX104W/PVC/潜力新品","tier":3},"XSX103W":{"display":"XSX103W/橡胶/争取培养新品","tier":5},"XSX04":{"display":"XSX04/牛勃朗/狩猎靴","tier":4},"XSX77":{"display":"XSX77/橡胶/常规一般","tier":4},"XSX78":{"display":"XSX78/牛勃朗/常规一般","tier":4},"XSX06W":{"display":"XSX06W/牛勃朗/常规一般","tier":4},"XSX115":{"display":"XSX115/牛勃朗/冬季潜力重点新品","tier":3},"XSX85K":{"display":"XSX85K/橡胶/常规一般","tier":4},"XSX76":{"display":"XSX76/橡胶/清仓","tier":6},"XSX127W":{"display":"XSX127W/PVC/潜力新品","tier":3},"XSX40K":{"display":"XSX40K/牛勃朗/清仓","tier":6},"XSX92W":{"display":"XSX92W/橡胶/冬季重点","tier":2},"XSX97":{"display":"XSX97/牛勃朗/deck shoes新品","tier":5},"XSX106W":{"display":"XSX106W/橡胶/清仓","tier":6},"XSX100W":{"display":"XSX100W/橡胶/新品","tier":5},"XSX98W":{"display":"XSX98W/牛勃朗/优化换帖低评分","tier":4},"XSX126W":{"display":"XSX126W/牛勃朗/新品","tier":5},"XSX110K":{"display":"XSX110K/PVC/潜力新品","tier":3},"XSX31":{"display":"XSX31/牛勃朗/狩猎靴","tier":4},"XSX02":{"display":"XSX02/牛勃朗/冬季重点","tier":2},"XSX120K":{"display":"XSX120K/橡胶/新品","tier":5},"XSX123":{"display":"XSX123/牛勃朗/难点新品","tier":5},"XSX56":{"display":"XSX56/牛勃朗/常规一般","tier":4},"XSX65W":{"display":"XSX65W/牛勃朗/清仓","tier":6},"XSX124":{"display":"XSX124/牛勃朗/deck shoes新品","tier":5},"XSX86K":{"display":"XSX86K/橡胶/清仓","tier":6},"XSX129K":{"display":"XSX129K/牛勃朗/难点新品","tier":5},"XSX66K":{"display":"XSX66K/PVC/清仓","tier":6},"XSX51W":{"display":"XSX51W/橡胶/清仓","tier":6},"XSX114":{"display":"XSX114/织布/难点新品","tier":5}};
 
 function lookupProd(code){
-  if(PROD_MAP[code]) return PROD_MAP[code];
+  if(PROD_MAP[code])return PROD_MAP[code];
   const cands=Object.keys(PROD_MAP).filter(k=>k.startsWith(code)||code.startsWith(k));
-  if(cands.length===1) return PROD_MAP[cands[0]];
+  if(cands.length===1)return PROD_MAP[cands[0]];
   if(cands.length>1){cands.sort((a,b)=>Math.abs(a.length-code.length)-Math.abs(b.length-code.length));return PROD_MAP[cands[0]];}
   for(const s of['W','K','T','']){if(PROD_MAP[code+s])return PROD_MAP[code+s];}
   return null;
@@ -346,8 +285,8 @@ function lookupProd(code){
 /* ══ STATE ══ */
 let fileMap={}, parsedData=null, charts=[];
 let metricOn={spend:true,sales:true,cr:true};
-let activeCats=new Set(ORDER);           // 分类筛选
-let activeTiers=new Set(['all','1','2','3','4','5','6']); // 产品定位筛选（all=不限）
+let activeCats=new Set(ORDER);
+let activeTiers=new Set(['all','1','2','3','4','5','6']);
 
 /* ── NAV ── */
 function switchPage(id){
@@ -356,12 +295,12 @@ function switchPage(id){
   document.getElementById('pageTitle').textContent=PAGE_META[id].title;
   document.getElementById('pageSub').textContent=PAGE_META[id].sub;
   const has=!!parsedData;
-  document.getElementById('dateChip').style.display=has&&id==='dashboard'?'':'none';
+  document.getElementById('dateChip').style.display=has&&id==='dashboard'?'block':'none';
   document.getElementById('btnReimport').style.display=has&&id==='dashboard'?'flex':'none';
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.addEventListener('click',()=>switchPage(n.dataset.page)));
 
-/* ── FILE HANDLING ── */
+/* ── FILE ── */
 const dz=document.getElementById('dz');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
@@ -391,12 +330,68 @@ function renderFileList(){
   document.getElementById('btnGo').classList.add('show');
 }
 
-/* ── PARSE ── */
+/* ── PARSE & CLASSIFY ── */
 function toNum(v){const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n}
 function extractProd(n){if(typeof n!=='string')return null;const m=n.match(/(XSX[A-Z0-9]+|AQX[A-Z0-9]+)/);return m?m[1]:null}
-function normProd(p){if(!p)return null;p=p.replace(/(ACP|WCP|KCP|TCP|CP)0$/,'$1');p=p.replace(/(ACP|WCP|KCP|TCP|CP)$/,'');p=p.replace(/(SY|A0[12])$/,'');return p.trim()||null}
+function normProd(p){
+  if(typeof p!=='string')return null;
+  p=p.replace(/(ACP|WCP|KCP|TCP|CP)0$/,'$1');
+  p=p.replace(/(ACP|WCP|KCP|TCP|CP)$/,'');
+  p=p.replace(/(SY|A0[12])$/,'');
+  return p.trim()||null;
+}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
-function setProgress(pct,msg){document.getElementById('pb').style.width=pct+'%';document.getElementById('pt').textContent=msg;if(pct>0){document.getElementById('pw').classList.add('show');document.getElementById('pt').classList.add('show')}}
+function setProgress(pct,msg){
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('pt').textContent=msg;
+  if(pct>0){document.getElementById('pw').classList.add('show');document.getElementById('pt').classList.add('show')}
+}
+
+/* ══ 核心分类逻辑 ══ */
+function classify(sales,spend,cr){
+  const n=sales.length;
+  if(!n)return{cat:'低基数正常运营',signal:'数据不足'};
+  const ts=sales[n-1], tsp=spend[n-1], tcr=cr[n-1];
+  const p3s = n>3?avg(sales.slice(-4,-1)):avg(sales.slice(0,-1));
+  const p3sp= n>3?avg(spend.slice(-4,-1)):avg(spend.slice(0,-1));
+  const p3cr= n>3?avg(cr.slice(-4,-1))   :avg(cr.slice(0,-1));
+  const p1s = n>=2?sales[n-2]:sales[n-1];
+  const nr3s = avg(sales.slice(Math.max(0,n-3)));
+  const nr3sp= avg(spend.slice(Math.max(0,n-3)));
+  const nr3cr= avg(cr.slice(Math.max(0,n-3)));
+  const b7s=Math.max(0,n-10), b7e=Math.max(0,n-3);
+  const bf7s = b7e>b7s?avg(sales.slice(b7s,b7e)):p3s;
+  const bf7sp= b7e>b7s?avg(spend.slice(b7s,b7e)):p3sp;
+  const bf7cr= b7e>b7s?avg(cr.slice(b7s,b7e))   :p3cr;
+  const hist = avg(sales);
+
+  // 低基数优先
+  if(hist<8) return{cat:'低基数正常运营',signal:`日均${hist.toFixed(1)}<8`};
+
+  // 增长
+  if(ts>=p3s*1.8&&p3s>=8) return{cat:'广告销量增长',signal:`今日${ts.toFixed(0)}≥前3均×180%`};
+  if(ts>=p1s*2.0&&p3s>=8) return{cat:'广告销量增长',signal:`今日${ts.toFixed(0)}≥前1日×200%`};
+  if(bf7s>0&&nr3s>=bf7s*1.5) return{cat:'广告销量增长',signal:`近3均${nr3s.toFixed(0)}≥前7均×150%`};
+
+  // 下滑
+  if(ts<5) return{cat:'广告销量下滑',signal:`今日销量${ts.toFixed(0)}<5`};
+  if(p3s>0&&ts<=p3s*0.6) return{cat:'广告销量下滑',signal:`今日${ts.toFixed(0)}≤前3均×60%`};
+  if(p1s>0&&ts<=p1s*0.5) return{cat:'广告销量下滑',signal:`今日${ts.toFixed(0)}≤前1日×50%`};
+  if(bf7s>0&&nr3s<=bf7s*0.7) return{cat:'广告销量下滑',signal:`近3均${nr3s.toFixed(0)}≤前7均×70%`};
+
+  // 花费骤降
+  if(tsp<=30) return{cat:'花费骤降',signal:`今日花费$${tsp.toFixed(0)}≤$30`};
+  if(p3sp>0&&tsp<=p3sp*0.5) return{cat:'花费骤降',signal:`今日花费≤前3均×50%`};
+  if(bf7sp>0&&nr3sp<=bf7sp*0.8) return{cat:'花费骤降',signal:`近3均花费≤前7均×80%`};
+
+  // 转化率走低
+  if(tcr<4) return{cat:'转化率走低显著',signal:`今日CR${tcr.toFixed(1)}%<4%`};
+  if(p3cr>0&&tcr<=p3cr*0.7) return{cat:'转化率走低显著',signal:`今日CR≤前3均×70%`};
+  if(bf7cr>0&&nr3cr<=bf7cr*0.8) return{cat:'转化率走低显著',signal:`近3均CR${nr3cr.toFixed(1)}%≤前7均×80%`};
+
+  // 日均>=8 无异动
+  return{cat:'无异常成熟产品',signal:'数据平稳无明显异动'};
+}
 
 document.getElementById('btnGo').addEventListener('click',analyze);
 document.getElementById('btnReimport').addEventListener('click',()=>{
@@ -409,75 +404,6 @@ document.getElementById('btnReimport').addEventListener('click',()=>{
   document.getElementById('btnGo').classList.add('show');
   switchPage('import');
 });
-
-/* ══ 核心分类逻辑（按表格异动诊断） ══ */
-function classifyProduct(p){
-  const sales=p.sales, spend=p.spend, cr=p.cr;
-  const n=sales.length;
-  if(n===0) return {cat:'低基数正常运营',signal:'数据不足'};
-
-  // 取最后一天（今日）和各均值
-  const todaySales = sales[n-1];
-  const todaySpend = spend[n-1];
-  const todayCR    = cr[n-1];
-
-  // 前3日均（不含今日）
-  const prev3Sales = n>3 ? avg(sales.slice(-4,-1)) : avg(sales.slice(0,-1));
-  const prev3Spend = n>3 ? avg(spend.slice(-4,-1)) : avg(spend.slice(0,-1));
-  const prev3CR    = n>3 ? avg(cr.slice(-4,-1))    : avg(cr.slice(0,-1));
-  // 前1日
-  const prev1Sales = n>=2 ? sales[n-2] : sales[n-1];
-  // 近3日均（含今日）
-  const near3Sales = avg(sales.slice(Math.max(0,n-3)));
-  const near3Spend = avg(spend.slice(Math.max(0,n-3)));
-  const near3CR    = avg(cr.slice(Math.max(0,n-3)));
-  // 近3日前7日均
-  const before7Start= Math.max(0,n-10);
-  const before7End  = Math.max(0,n-3);
-  const before7Sales= before7End>before7Start ? avg(sales.slice(before7Start,before7End)) : prev3Sales;
-  const before7Spend= before7End>before7Start ? avg(spend.slice(before7Start,before7End)) : prev3Spend;
-  const before7CR   = before7End>before7Start ? avg(cr.slice(before7Start,before7End))    : prev3CR;
-
-  // 历史日均（全期）
-  const histAvgSales = avg(sales);
-
-  // ① 低基数判断（优先）：日均广告销量<8
-  if(histAvgSales < 8){
-    return {cat:'低基数正常运营', signal:'日均销量<8'};
-  }
-
-  // ② 广告销量增长
-  let growthSignal='';
-  if(todaySales >= prev3Sales*1.8 && prev3Sales>=8)          growthSignal='今日销量≥前3日均180%';
-  else if(todaySales >= prev1Sales*2.0 && prev3Sales>=8)     growthSignal='今日销量≥前1日200%';
-  else if(near3Sales >= before7Sales*1.5 && before7Sales>0)  growthSignal='近3日均≥前7日均150%';
-  if(growthSignal) return {cat:'广告销量增长', signal:growthSignal};
-
-  // ③ 广告销量下滑
-  let dropSignal='';
-  if(todaySales < 5)                                         dropSignal='今日销量<5';
-  else if(prev3Sales>0 && todaySales<=prev3Sales*0.6)        dropSignal='今日销量≤前3日均60%';
-  else if(prev1Sales>0 && todaySales<=prev1Sales*0.5)        dropSignal='今日销量≤前1日50%';
-  else if(before7Sales>0 && near3Sales<=before7Sales*0.7)   dropSignal='近3日均≤前7日均70%';
-  if(dropSignal) return {cat:'广告销量下滑', signal:dropSignal};
-
-  // ④ 花费骤降
-  let spendSignal='';
-  if(todaySpend<=30)                                                    spendSignal='今日花费≤$30';
-  else if(prev3Spend>0 && todaySpend<=prev3Spend*0.5)                  spendSignal='今日花费≤前3日均50%';
-  else if(before7Spend>0 && near3Spend<=before7Spend*0.8)             spendSignal='近3日均花费≤前7日均80%';
-  if(spendSignal) return {cat:'花费骤降', signal:spendSignal};
-
-  // ⑤ 转化率走低
-  let crSignal='';
-  if(todayCR<4)                                                         crSignal='今日CR<4%';
-  else if(prev3CR>0 && todayCR<=prev3CR*0.7)                          crSignal='今日CR≤前3日均70%';
-  else if(before7CR>0 && near3CR<=before7CR*0.8)                      crSignal='近3日均CR≤前7日均80%';
-  if(crSignal) return {cat:'转化率走低显著', signal:crSignal};
-
-  // 无明显异动，归入低基数/正常
-  return {cat:'低基数正常运营', signal:'无明显异动'};
-}
 
 async function analyze(){
   const entries=Object.values(fileMap).sort((a,b)=>{
@@ -499,35 +425,50 @@ async function analyze(){
       rows.forEach(row=>{
         const camp=row['广告活动']||'';
         if(String(camp).includes('汇总')||!camp)return;
-        const prod=normProd(extractProd(camp));
+        const raw=extractProd(camp);
+        const prod=normProd(raw);
         if(!prod)return;
         allRec.push({date,product:prod,
-          spend:toNum(row['花费']||0),sales:toNum(row['广告销量']||0),
-          clicks:toNum(row['点击']||0),orders:toNum(row['广告订单量']||0)});
+          spend:toNum(row['花费']||0),
+          sales:toNum(row['广告销量']||0),
+          clicks:toNum(row['点击']||0),
+          orders:toNum(row['广告订单量']||0)});
       });
     }catch(e){console.error(u.file.name,e)}
   }
   setProgress(80,'聚合产品数据…');await new Promise(r=>setTimeout(r,10));
+
   const agg={};
   allRec.forEach(r=>{
     const k=`${r.product}||${r.date}`;
     if(!agg[k])agg[k]={...r,spend:0,sales:0,clicks:0,orders:0};
-    agg[k].spend+=r.spend;agg[k].sales+=r.sales;agg[k].clicks+=r.clicks;agg[k].orders+=r.orders;
+    agg[k].spend+=r.spend;agg[k].sales+=r.sales;
+    agg[k].clicks+=r.clicks;agg[k].orders+=r.orders;
   });
   const pm={};
   Object.values(agg).forEach(r=>{if(!pm[r.product])pm[r.product]={};pm[r.product][r.date]=r});
+
+  // 最低花费过滤：总花费>=50
   const active=Object.keys(pm).filter(p=>dates.reduce((s,d)=>s+(pm[p][d]?.spend||0),0)>=50);
+
   setProgress(90,'异动诊断分类…');await new Promise(r=>setTimeout(r,10));
 
   const products=active.map(p=>{
-    const spend=dates.map(d=>+(pm[p][d]?.spend||0).toFixed(1));
-    const sales=dates.map(d=>+(pm[p][d]?.sales||0).toFixed(0));
-    const cl=dates.map(d=>pm[p][d]?.clicks||0);
-    const or=dates.map(d=>pm[p][d]?.orders||0);
-    const cr=dates.map((_,i)=>cl[i]>0?+((or[i]/cl[i])*100).toFixed(1):0);
-    const info=lookupProd(p);
-    const {cat,signal}=classifyProduct({sales,spend,cr});
-    return{name:p,displayName:info?info.display:p,tier:info?info.tier:4,spend,sales,cr,dates,category:cat,signal};
+    const spend =dates.map(d=>+(pm[p][d]?.spend ||0).toFixed(1));
+    const sales =dates.map(d=>+(pm[p][d]?.sales ||0).toFixed(0));
+    const clicks=dates.map(d=>  pm[p][d]?.clicks||0);
+    const orders=dates.map(d=>  pm[p][d]?.orders||0);
+    const cr    =dates.map((_,i)=>clicks[i]>0?+((orders[i]/clicks[i])*100).toFixed(2):0);
+    const info  =lookupProd(p);
+    const {cat,signal}=classify(sales,spend,cr);
+    return{
+      name:p,
+      displayName:info?info.display:p,
+      tier:info?info.tier:4,
+      spend,sales,cr,dates,
+      category:cat,signal,
+      avgSales:avg(sales),
+    };
   });
 
   setProgress(100,'完成！');await new Promise(r=>setTimeout(r,200));
@@ -536,25 +477,25 @@ async function analyze(){
   switchPage('dashboard');
 }
 
-/* ── DASHBOARD ── */
+/* ── RENDER ── */
 function renderDashboard(){
   charts.forEach(c=>{try{c.destroy()}catch(e){}});charts=[];
   const{products,dates}=parsedData;
   document.getElementById('noDataMsg').style.display='none';
   document.getElementById('dashBody').style.display='block';
+
   const label=dates.length===1?dates[0]:`${dates[0]} → ${dates[dates.length-1]}`;
   document.getElementById('dateChip').textContent=label;
 
-  // summary
   const groups={};ORDER.forEach(c=>groups[c]=[]);
   products.forEach(p=>groups[p.category].push(p));
-  ORDER.forEach(c=>groups[c].sort((a,b)=>a.tier-b.tier));
+  ORDER.forEach(c=>groups[c].sort((a,b)=>a.tier-b.tier||b.avgSales-a.avgSales));
 
-  const totSpend=products.reduce((s,p)=>s+p.spend[p.spend.length-1],0);
-  const totSales=products.reduce((s,p)=>s+p.sales[p.sales.length-1],0);
+  const totSpend=products.reduce((s,p)=>s+(p.spend[p.spend.length-1]||0),0);
+  const totSales=products.reduce((s,p)=>s+(p.sales[p.sales.length-1]||0),0);
   document.getElementById('sumRow').innerHTML=`
     <div class="scard"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--purple))"></div>
-      <div class="slbl">产品总数</div><div class="sval">${products.length}</div><div class="sdesc">共 ${dates.length} 天</div></div>
+      <div class="slbl">产品总数</div><div class="sval">${products.length}</div><div class="sdesc">共 ${dates.length} 天数据</div></div>
     <div class="scard"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--blue)"></div>
       <div class="slbl">最新日花费</div><div class="sval" style="color:var(--blue)">$${totSpend.toFixed(0)}</div><div class="sdesc">所有产品合计</div></div>
     <div class="scard"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--green)"></div>
@@ -562,57 +503,46 @@ function renderDashboard(){
     ${ORDER.map(c=>`<div class="scard"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${CATS[c].color}"></div>
       <div class="slbl">${c}</div><div class="sval" style="color:${CATS[c].color}">${groups[c].length}</div><div class="sdesc">个产品</div></div>`).join('')}`;
 
-  // 分类筛选按钮
   buildCatFilter();
   renderSections(groups);
 }
 
 function buildCatFilter(){
   const bar=document.getElementById('catFilterBar');
-  // 清除旧按钮（保留label）
   [...bar.querySelectorAll('.ftab')].forEach(b=>b.remove());
-  // 全部按钮
-  const allBtn=document.createElement('button');
-  allBtn.className='ftab fall'+(activeCats.size===ORDER.length?' on':'');
-  allBtn.textContent='全部';
-  allBtn.onclick=()=>{
-    if(activeCats.size===ORDER.length){activeCats=new Set();}else{activeCats=new Set(ORDER);}
-    buildCatFilter();rerender();
-  };
-  bar.appendChild(allBtn);
+  // 全部
+  const ab=document.createElement('button');
+  ab.className='ftab';
+  ab.textContent='全部';
+  const allOn=activeCats.size===ORDER.length;
+  ab.style.cssText=allOn?'background:var(--text);color:#0d0f14;border-color:var(--text)':'';
+  ab.onclick=()=>{activeCats=activeCats.size===ORDER.length?new Set():new Set(ORDER);buildCatFilter();rerender()};
+  bar.appendChild(ab);
   ORDER.forEach(c=>{
     const cfg=CATS[c];
     const btn=document.createElement('button');
     btn.className='ftab';
-    btn.style.cssText=activeCats.has(c)?`background:${cfg.color};color:#0d0f14;border-color:${cfg.color}`:`border-color:${cfg.color};color:${cfg.color}`;
     btn.textContent=c;
-    btn.onclick=()=>{
-      if(activeCats.has(c))activeCats.delete(c);else activeCats.add(c);
-      buildCatFilter();rerender();
-    };
+    btn.style.cssText=activeCats.has(c)?`background:${cfg.color};color:#0d0f14;border-color:${cfg.color}`:`border-color:${cfg.color};color:${cfg.color}`;
+    btn.onclick=()=>{activeCats.has(c)?activeCats.delete(c):activeCats.add(c);buildCatFilter();rerender()};
     bar.appendChild(btn);
   });
 }
 
-/* 指标切换 */
 function toggleMetric(m){
   const onCnt=Object.values(metricOn).filter(Boolean).length;
   if(metricOn[m]&&onCnt===1)return;
   metricOn[m]=!metricOn[m];
   const btn=document.querySelector(`.tbtn[data-m="${m}"]`);
-  if(metricOn[m]){btn.classList.add('on');btn.querySelector('.tbchk').style.opacity='.85';
-    if(m==='spend')btn.style.background='rgba(56,189,248,.12)';
-    else if(m==='sales')btn.style.background='rgba(187,187,187,.1)';
-    else btn.style.background='rgba(134,239,172,.1)';
+  if(metricOn[m]){
+    btn.classList.add('on');btn.querySelector('.tbchk').style.opacity='.85';
+    btn.style.background=m==='spend'?'rgba(56,189,248,.12)':m==='sales'?'rgba(187,187,187,.1)':'rgba(134,239,172,.1)';
   }else{btn.classList.remove('on');btn.querySelector('.tbchk').style.opacity='0';btn.style.background='transparent';}
   rerender();
 }
 
-/* 产品定位切换 */
 function toggleTier(t){
-  const btn=document.querySelector(`.tbtn[data-tier="${t}"]`);
   if(t==='all'){
-    // 全部：全选/全不选
     if(activeTiers.has('all')){
       activeTiers=new Set();
       document.querySelectorAll('.tbtn[data-tier]').forEach(b=>{b.classList.remove('on');b.querySelector('.tbchk').style.opacity='0';b.style.background='transparent'});
@@ -622,12 +552,10 @@ function toggleTier(t){
     }
     rerender();return;
   }
-  if(activeTiers.has(t)){activeTiers.delete(t);}else{activeTiers.add(t);}
-  // 更新全部按钮状态
-  if(['1','2','3','4','5','6'].every(x=>activeTiers.has(x))){activeTiers.add('all');}else{activeTiers.delete('all');}
+  if(activeTiers.has(t))activeTiers.delete(t);else activeTiers.add(t);
+  if(['1','2','3','4','5','6'].every(x=>activeTiers.has(x)))activeTiers.add('all');else activeTiers.delete('all');
   document.querySelectorAll('.tbtn[data-tier]').forEach(b=>{
-    const key=b.dataset.tier;
-    const isOn=activeTiers.has(key);
+    const isOn=activeTiers.has(b.dataset.tier);
     b.classList.toggle('on',isOn);
     b.querySelector('.tbchk').style.opacity=isOn?'.85':'0';
     if(!isOn&&b.dataset.tier!=='all')b.style.background='transparent';
@@ -639,7 +567,7 @@ function rerender(){
   if(!parsedData)return;
   const groups={};ORDER.forEach(c=>groups[c]=[]);
   parsedData.products.forEach(p=>groups[p.category].push(p));
-  ORDER.forEach(c=>groups[c].sort((a,b)=>a.tier-b.tier));
+  ORDER.forEach(c=>groups[c].sort((a,b)=>a.tier-b.tier||b.avgSales-a.avgSales));
   renderSections(groups);
 }
 
@@ -651,29 +579,29 @@ function renderSections(groups){
 
   show.forEach(cat=>{
     const cfg=CATS[cat];
-    // 应用定位筛选
     let prods=(groups[cat]||[]).filter(p=>activeTiers.has('all')||activeTiers.has(String(p.tier)));
-    const totalInCat=(groups[cat]||[]).length;
-    const hiddenCnt=totalInCat-prods.length;
+    const total=(groups[cat]||[]).length;
+    const hidden=total-prods.length;
 
     const sec=document.createElement('div');sec.className='cat-section';
     sec.innerHTML=`
       <div class="cat-hdr">
         <span class="cat-pill" style="background:${cfg.bg};color:${cfg.color};border:1.5px solid ${cfg.bd}">${cat}</span>
-        <span class="cat-cnt">${prods.length} 个产品${hiddenCnt>0?` <span style="color:var(--dim);font-size:11px">（已过滤 ${hiddenCnt} 个）</span>`:''}</span>
+        <span class="cat-cnt">${prods.length} 个产品${hidden>0?` <span style="color:var(--dim);font-size:11px">（已过滤 ${hidden} 个）</span>`:''}</span>
         <span class="cat-desc-txt">${cfg.desc}</span>
       </div>
-      <div class="cat-rules" style="border-color:${cfg.color};margin-bottom:10px">${cfg.rules}</div>
+      <div class="cat-rules" style="border-color:${cfg.color}">${cfg.rules}</div>
       ${prods.length?`<div class="pgrid" id="g${cat.replace(/[^a-z0-9]/gi,'_')}"></div>`
-        :'<div style="text-align:center;padding:1.5rem;color:var(--dim);font-size:13px;font-weight:600">当前定位筛选下无产品</div>'}
-    `;
+        :'<div style="text-align:center;padding:1.5rem;color:var(--dim);font-size:13px;font-weight:600">当前定位筛选下无产品</div>'}`;
     secs.appendChild(sec);
     if(!prods.length)return;
 
     const grid=sec.querySelector('.pgrid');
     prods.forEach((p,i)=>{
       const cid=`c${cat.replace(/[^a-z0-9]/gi,'_')}${i}`;
-      const sl=p.spend[p.spend.length-1],ql=p.sales[p.sales.length-1],crl=p.cr[p.cr.length-1];
+      const sl=p.spend[p.spend.length-1]||0;
+      const ql=p.sales[p.sales.length-1]||0;
+      const crl=p.cr[p.cr.length-1]||0;
       const mets=[];
       if(metricOn.spend)mets.push({val:`$${sl.toFixed(0)}`,lbl:'花费',color:cfg.spendC});
       if(metricOn.sales)mets.push({val:`${ql.toFixed(0)}`,lbl:'销量',color:cfg.salesC});
@@ -682,9 +610,7 @@ function renderSections(groups){
       const card=document.createElement('div');card.className='pcard';
       card.innerHTML=`
         <div class="pcard-top">
-          <div style="min-width:0;flex:1">
-            <div class="pname">${p.displayName}</div>
-          </div>
+          <div style="min-width:0;flex:1"><div class="pname">${p.displayName}</div></div>
           <div class="pcard-badges">
             <div class="pbadge" style="background:${cfg.color};box-shadow:0 0 7px ${cfg.color}99"></div>
             <span class="tier-badge tier-${p.tier}">${TIER_LABELS[p.tier]||'其他'}</span>
@@ -703,22 +629,29 @@ function renderSections(groups){
         const activeKeys=['spend','sales','cr'].filter(k=>metricOn[k]);
         if(metricOn.spend)ds.push({data:p.spend,borderColor:cfg.spendC,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:cfg.spendC,tension:.35,yAxisID:'y1',fill:false});
         if(metricOn.sales)ds.push({data:p.sales,borderColor:cfg.salesC,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:cfg.salesC,tension:.35,yAxisID:'y2',fill:false});
-        if(metricOn.cr)   ds.push({data:p.cr,borderColor:cfg.crC,borderWidth:1.8,pointRadius:2,pointBackgroundColor:cfg.crC,tension:.35,borderDash:[4,3],yAxisID:'y3',fill:false});
+        if(metricOn.cr)   ds.push({data:p.cr,   borderColor:cfg.crC,   borderWidth:1.8,pointRadius:2,  pointBackgroundColor:cfg.crC,   tension:.35,yAxisID:'y3',fill:false,borderDash:[4,3]});
         const ch=new Chart(ctx,{
           type:'line',data:{labels:p.dates,datasets:ds},
-          options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},animation:{duration:200},
+          options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},animation:{duration:200},
             plugins:{legend:{display:false},tooltip:{
               backgroundColor:'#1c2030',borderColor:'rgba(255,255,255,.15)',borderWidth:1,
               titleColor:'#c0c8d8',bodyColor:'#eceef4',padding:9,
-              titleFont:{size:12,family:'Microsoft YaHei,微软雅黑,sans-serif',weight:'700'},
-              bodyFont:{size:12,family:'Microsoft YaHei,微软雅黑,sans-serif',weight:'600'},
-              callbacks:{title:c=>c[0].label,label:c=>{
-                const k=activeKeys[c.datasetIndex];
-                return k==='spend'?`花费: $${c.raw.toFixed(0)}`:k==='sales'?`销量: ${c.raw}`:`CR: ${c.raw.toFixed(1)}%`;
-              }}
+              titleFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'700'},
+              bodyFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'600'},
+              callbacks:{
+                title:c=>c[0].label,
+                label:c=>{
+                  const k=activeKeys[c.datasetIndex];
+                  return k==='spend'?`花费: $${c.raw.toFixed(0)}`:k==='sales'?`销量: ${c.raw}`:`CR: ${c.raw.toFixed(1)}%`;
+                }
+              }
             }},
-            scales:{x:{ticks:{color:'#8b95a8',font:{size:9,family:'Microsoft YaHei,微软雅黑,sans-serif',weight:'600'},maxTicksLimit:5,maxRotation:0},grid:{display:false},border:{color:'rgba(255,255,255,.05)'}},
-              y1:{display:false},y2:{display:false},y3:{display:false}}
+            scales:{
+              x:{ticks:{color:'#8b95a8',font:{size:9,family:'Microsoft YaHei,sans-serif'},maxTicksLimit:5,maxRotation:0},grid:{display:false},border:{color:'rgba(255,255,255,.05)'}},
+              y1:{display:false},y2:{display:false},y3:{display:false}
+            }
           }
         });
         charts.push(ch);
