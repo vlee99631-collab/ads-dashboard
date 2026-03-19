@@ -347,7 +347,7 @@ function lookupProd(code){
 let fileMap={}, parsedData=null, charts=[];
 let metricOn={spend:true,sales:true,cr:true};
 let activeCats=new Set(ORDER);           // 分类筛选
-let activeTiers=new Set(['all',1,2,3,4,5,6]); // 产品定位筛选（all=不限）
+let activeTiers=new Set(['all','1','2','3','4','5','6']); // 产品定位筛选（all=不限）
 
 /* ── NAV ── */
 function switchPage(id){
@@ -617,17 +617,16 @@ function toggleTier(t){
       activeTiers=new Set();
       document.querySelectorAll('.tbtn[data-tier]').forEach(b=>{b.classList.remove('on');b.querySelector('.tbchk').style.opacity='0';b.style.background='transparent'});
     }else{
-      activeTiers=new Set(['all',1,2,3,4,5,6]);
+      activeTiers=new Set(['all','1','2','3','4','5','6']);
       document.querySelectorAll('.tbtn[data-tier]').forEach(b=>{b.classList.add('on');b.querySelector('.tbchk').style.opacity='.85'});
     }
     rerender();return;
   }
-  const ti=parseInt(t);
-  if(activeTiers.has(ti)){activeTiers.delete(ti);}else{activeTiers.add(ti);}
+  if(activeTiers.has(t)){activeTiers.delete(t);}else{activeTiers.add(t);}
   // 更新全部按钮状态
-  if([1,2,3,4,5,6].every(x=>activeTiers.has(x))){activeTiers.add('all');}else{activeTiers.delete('all');}
+  if(['1','2','3','4','5','6'].every(x=>activeTiers.has(x))){activeTiers.add('all');}else{activeTiers.delete('all');}
   document.querySelectorAll('.tbtn[data-tier]').forEach(b=>{
-    const key=b.dataset.tier==='all'?'all':parseInt(b.dataset.tier);
+    const key=b.dataset.tier;
     const isOn=activeTiers.has(key);
     b.classList.toggle('on',isOn);
     b.querySelector('.tbchk').style.opacity=isOn?'.85':'0';
@@ -653,7 +652,7 @@ function renderSections(groups){
   show.forEach(cat=>{
     const cfg=CATS[cat];
     // 应用定位筛选
-    let prods=(groups[cat]||[]).filter(p=>activeTiers.has('all')||activeTiers.has(p.tier));
+    let prods=(groups[cat]||[]).filter(p=>activeTiers.has('all')||activeTiers.has(String(p.tier)));
     const totalInCat=(groups[cat]||[]).length;
     const hiddenCnt=totalInCat-prods.length;
 
