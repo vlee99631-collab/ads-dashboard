@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>广告监控看板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sur:#141720;--sur2:#1c2030;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.16);
+  --txt:#eceef4;--mut:#a0aab8;--dim:#6b7a94;
+  --grn:#22d97a;--red:#ff4d6d;--pur:#a78bfa;--blu:#38bdf8;--tel:#2dd4bf;
+  --sw:224px;
+  --ff:'Microsoft YaHei','微软雅黑','PingFang SC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--ff);display:flex;min-height:100vh;font-size:14px}
+
+/* sidebar */
+.sb{width:var(--sw);min-height:100vh;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:200}
+.sb-logo{padding:1.4rem 1.25rem .9rem;border-bottom:1px solid var(--bdr2)}
+.sb-title{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800}
+.sb-dot{width:9px;height:9px;border-radius:50%;background:var(--grn);box-shadow:0 0 8px var(--grn)}
+.sb-sub{font-size:12px;color:var(--mut);margin-top:5px;font-weight:600}
+.sb-nav{flex:1;padding:1rem 0}
+.sb-lbl{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;padding:0 1.25rem;margin:1rem 0 .4rem;font-weight:700}
+.nav-a{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-size:14px;font-weight:700;color:var(--mut);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none}
+.nav-a:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+.nav-a.on{color:var(--txt);border-left-color:var(--grn);background:rgba(34,217,122,.06)}
+.nav-a svg{width:16px;height:16px;flex-shrink:0;opacity:.6}
+.nav-a.on svg{opacity:1;color:var(--grn)}
+.sb-foot{padding:1rem 1.25rem;border-top:1px solid var(--bdr);font-size:12px;color:var(--dim);line-height:1.8;font-weight:600}
+.sb-sdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:5px}
+
+/* main */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:58px;border-bottom:1px solid var(--bdr);background:var(--sur);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100}
+.pg-ttl{font-size:17px;font-weight:800}
+.pg-sub{font-size:13px;color:var(--mut);font-weight:600;margin-top:1px}
+.tr{display:flex;align-items:center;gap:10px}
+.dchip{font-size:13px;color:var(--mut);padding:5px 12px;border:1px solid var(--bdr2);border-radius:6px;background:var(--sur2);font-weight:700;display:none}
+.btn-s{display:none;align-items:center;gap:6px;padding:7px 14px;background:transparent;color:var(--mut);border:1px solid var(--bdr2);border-radius:8px;font-size:13px;font-family:var(--ff);cursor:pointer;font-weight:700}
+.btn-s:hover{color:var(--txt);background:var(--sur2)}
+.panel{display:none;flex:1}
+.panel.on{display:block}
+.pbody{padding:2rem;max-width:1800px;margin:0 auto}
+
+/* import */
+.imp{min-height:calc(100vh - 58px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+.imp::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(34,217,122,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(167,139,250,.05) 0%,transparent 60%)}
+.imp-t{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-align:center;line-height:1.1;margin-bottom:.6rem;letter-spacing:-.02em}
+.imp-t span{background:linear-gradient(135deg,var(--grn),var(--blu));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.imp-s{font-size:15px;color:var(--mut);text-align:center;margin-bottom:2rem;line-height:1.7;font-weight:600}
+.dz{width:100%;max-width:560px;border:1.5px dashed var(--bdr2);border-radius:20px;padding:2.25rem 2rem;text-align:center;background:var(--sur);transition:all .25s;cursor:pointer}
+.dz.ov,.dz:hover{border-color:var(--grn);background:rgba(34,217,122,.06);transform:translateY(-2px)}
+.dz-icon{width:52px;height:52px;margin:0 auto 1rem;border-radius:14px;background:var(--sur2);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center}
+.dz h3{font-size:15px;font-weight:700;margin-bottom:.4rem}
+.dz p{font-size:13px;color:var(--mut);margin-bottom:1.1rem;line-height:1.6;font-weight:600}
+.btn-pick{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--grn);color:#0d1a11;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--ff);cursor:pointer}
+.flw{width:100%;max-width:560px;margin-top:1.5rem}
+.fl-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.fl-ttl{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.btn-clr{font-size:11px;color:var(--red);cursor:pointer;font-weight:700;background:none;border:none;font-family:var(--ff);padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--sur2);border:1px solid var(--bdr2);border-radius:100px;font-size:12px;font-weight:700}
+.chip .cd{width:6px;height:6px;border-radius:50%;background:var(--grn);flex-shrink:0}
+.chip .cx{cursor:pointer;color:var(--mut);font-size:14px;margin-left:2px;line-height:1;font-weight:900}
+.chip .cx:hover{color:var(--red)}
+.btn-go{margin-top:1.75rem;display:none;align-items:center;gap:10px;padding:13px 32px;background:linear-gradient(135deg,var(--grn),#16b86a);color:#0d1a11;border:none;border-radius:12px;font-size:15px;font-weight:800;font-family:var(--ff);cursor:pointer}
+.btn-go.on{display:inline-flex}
+.prog{width:100%;max-width:560px;height:3px;background:var(--bdr);border-radius:2px;margin-top:1.25rem;overflow:hidden;display:none}
+.prog.on{display:block}
+.prog-b{height:100%;background:linear-gradient(90deg,var(--grn),var(--blu));width:0%;transition:width .3s;border-radius:2px}
+.prog-t{margin-top:.6rem;font-size:12px;color:var(--mut);display:none;font-weight:600}
+.prog-t.on{display:block}
+
+/* dashboard */
+.sc-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.75rem}
+.sc{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:1rem 1.1rem;position:relative;overflow:hidden}
+.sc-l{font-size:11px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;font-weight:800}
+.sc-v{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.2rem}
+.sc-d{font-size:12px;color:var(--mut);font-weight:700}
+.ctrl{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:14px 16px;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:10px}
+.trow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tlbl{font-size:12px;color:var(--dim);font-weight:800;letter-spacing:.05em;margin-right:4px;white-space:nowrap}
+.tb{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .18s;font-family:var(--ff);user-select:none;white-space:nowrap}
+.tb .tc{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tb .tk{font-size:11px;opacity:0;margin-left:1px}
+.tb.on .tk{opacity:.85}
+.ft{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--bdr2);background:transparent;color:var(--mut);font-family:var(--ff);transition:all .18s;white-space:nowrap}
+.ft:hover{color:var(--txt)}
+.csec{margin-bottom:2.5rem}
+.chdr{display:flex;align-items:center;gap:10px;margin-bottom:.7rem;padding-bottom:10px;border-bottom:1px solid var(--bdr2)}
+.cpil{padding:4px 14px;border-radius:100px;font-size:13px;font-weight:800}
+.ccnt{font-size:13px;color:var(--mut);font-weight:700}
+.cdsc{font-size:12px;color:var(--dim);margin-left:auto;font-weight:700}
+.crls{font-size:11px;color:var(--dim);font-weight:600;margin-bottom:10px;line-height:1.7;padding:7px 12px;background:var(--sur2);border-radius:8px;border-left:2px solid}
+.pg{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1400px){.pg{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1100px){.pg{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px) {.pg{grid-template-columns:repeat(2,1fr)}}
+.pc{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:13px 13px 11px;transition:transform .18s,border-color .18s}
+.pc:hover{transform:translateY(-2px);border-color:var(--bdr2)}
+.pct{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:4px}
+.pnm{font-size:12px;font-weight:800;line-height:1.35;word-break:break-all;min-width:0;flex:1}
+.pbdg{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;max-width:76px}
+.pd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tb2{font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px;white-space:nowrap;letter-spacing:.04em;line-height:1.4}
+.t1{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
+.t2{background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.25)}
+.t3{background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}
+.t4{background:rgba(107,114,128,.12);color:#9ca3af;border:1px solid rgba(107,114,128,.25)}
+.t5{background:rgba(34,217,122,.1);color:#22d97a;border:1px solid rgba(34,217,122,.22)}
+.t6{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.22)}
+.sg{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;line-height:1.4;max-width:72px;text-align:right;word-break:break-all;overflow:hidden}
+.cw{position:relative;height:84px;margin-bottom:9px;width:100%}
+.cw canvas{position:absolute;top:0;left:0;width:100%!important;height:84px!important}
+.mr{display:grid;gap:5px}
+.me{display:flex;flex-direction:column;align-items:center;background:var(--sur2);border-radius:8px;padding:6px 4px}
+.mv{font-size:13px;font-weight:800;line-height:1.2}
+.ml{font-size:10px;color:var(--mut);letter-spacing:.04em;font-weight:700;margin-top:1px}
+#nodat{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:2rem}
+.gob{margin-top:1.25rem;display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--grn);color:#0d1a11;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--ff);cursor:pointer}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-title"><span class="sb-dot"></span>广告监控</div>
+    <div class="sb-sub">Amazon Ads Dashboard</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-lbl">工具</div>
+    <div class="nav-a on" data-pg="imp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      基础数据导入
+    </div>
+    <div class="nav-a" data-pg="dash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      数据看板
+    </div>
+    <div class="sb-lbl" style="margin-top:1.5rem">说明</div>
+    <div class="nav-a" style="cursor:default;font-size:12px;font-weight:600;opacity:.7;line-height:1.8;padding-top:4px;padding-bottom:4px">
+      支持多天 BI 广告数据<br>直接读取产品线SKU列
+    </div>
+  </nav>
+  <div class="sb-foot"><span class="sb-sdot"></span>本地运行 · 数据不上传<br>HS 广告数据 BI 报表</div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="pg-ttl" id="pgT">基础数据导入</div>
+      <div class="pg-sub" id="pgS">上传 BI 广告数据 xlsx 文件开始分析</div>
+    </div>
+    <div class="tr">
+      <div class="dchip" id="dchip"></div>
+      <button class="btn-s" id="btnRe">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        重新导入
+      </button>
+    </div>
+  </div>
+
+  <!-- 导入面板 -->
+  <div class="panel on" id="panel-imp">
+    <div class="imp">
+      <h1 class="imp-t">导入广告数据<br><span>一键生成趋势看板</span></h1>
+      <p class="imp-s">支持多天 BI 广告数据文件，自动按日期排序<br>读取「产品线SKU · 实际花费 · 实际广告销量 · 实际广告转化率」</p>
+      <div class="dz" id="dz">
+        <div class="dz-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d97a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <h3>拖拽文件到此处，或点击下方按钮选择</h3>
+        <p>支持多个 .xlsx 文件，文件名含日期自动识别排序<br>如：BI-3_17广告数据.xlsx</p>
+        <button class="btn-pick" id="btnPick">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          选择文件
+        </button>
+        <input type="file" id="fi" multiple accept=".xlsx,.xls" style="display:none;position:absolute;left:-9999px">
+      </div>
+      <div class="flw" id="flw" style="display:none">
+        <div class="fl-hdr">
+          <span class="fl-ttl">已选文件（<span id="fct">0</span> 个）</span>
+          <button class="btn-clr" id="btnClr">清空全部</button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <button class="btn-go" id="btnGo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        开始分析并生成看板
+      </button>
+      <div class="prog" id="pw"><div class="prog-b" id="pb"></div></div>
+      <div class="prog-t" id="pt"></div>
+    </div>
+  </div>
+
+  <!-- 看板面板 -->
+  <div class="panel" id="panel-dash">
+    <div id="nodat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;opacity:.15;margin-bottom:1rem">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <p style="font-size:16px;font-weight:700;margin-bottom:.4rem">暂无数据</p>
+      <span style="font-size:13px;color:var(--mut);font-weight:600">请先前往「基础数据导入」上传文件</span>
+      <button class="gob" onclick="goPg('imp')">前往导入数据</button>
+    </div>
+    <div class="pbody" id="dbody" style="display:none">
+      <div class="sc-row" id="scrow"></div>
+      <div class="ctrl">
+        <div class="trow">
+          <span class="tlbl">显示指标：</span>
+          <div class="tb on" id="mb-spend" onclick="togM('spend')" style="border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.12)"><span class="tc" style="background:#a78bfa"></span>花费<span class="tk">✓</span></div>
+          <div class="tb on" id="mb-sales" onclick="togM('sales')" style="border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)"><span class="tc" style="background:#f59e0b"></span>广告销量<span class="tk">✓</span></div>
+          <div class="tb on" id="mb-cr"    onclick="togM('cr')"    style="border-color:#22d97a;color:#22d97a;background:rgba(34,217,122,.1)"><span class="tc" style="background:#22d97a"></span>CR%<span class="tk">✓</span></div>
+        </div>
+        <div class="trow" id="catbar"><span class="tlbl">分类筛选：</span></div>
+        <div class="trow">
+          <span class="tlbl">产品定位：</span>
+          <div class="tb on" data-tr="all" onclick="togT('all')" style="border-color:var(--mut);color:var(--mut);background:rgba(160,170,184,.1)">全部<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="1" onclick="togT('1')" style="border-color:#ffd700;color:#ffd700"><span class="tc" style="background:#ffd700"></span>头部热销<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="2" onclick="togT('2')" style="border-color:#38bdf8;color:#38bdf8"><span class="tc" style="background:#38bdf8"></span>重点<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="3" onclick="togT('3')" style="border-color:#a78bfa;color:#a78bfa"><span class="tc" style="background:#a78bfa"></span>潜力<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="4" onclick="togT('4')" style="border-color:#9ca3af;color:#9ca3af"><span class="tc" style="background:#9ca3af"></span>其他<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="5" onclick="togT('5')" style="border-color:#22d97a;color:#22d97a"><span class="tc" style="background:#22d97a"></span>新品<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="6" onclick="togT('6')" style="border-color:#ff4d6d;color:#ff4d6d"><span class="tc" style="background:#ff4d6d"></span>清仓<span class="tk">✓</span></div>
+        </div>
+      </div>
+      <div id="secs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ 固定折线颜色 ═══
+const C_SPEND = '#a78bfa'; // 花费：紫色
+const C_CR    = '#22d97a'; // 转化率：绿色虚线
+
+// ═══ 6分类配置 ═══
+const CATS = {
+  '广告销量增长':  {col:'#f59e0b',bg:'rgba(245,158,11,.1)', bd:'rgba(245,158,11,.3)', qc:'#f59e0b',desc:'今日或近期销量明显上升',rules:'① 今日销量≥前3日均×180%（基础≥8）② 今日销量≥前1日×200%（基础≥8）③ 近3日均≥前7日均×150%'},
+  '广告销量下滑':  {col:'#f97316',bg:'rgba(249,115,22,.1)', bd:'rgba(249,115,22,.3)', qc:'#f97316',desc:'今日或近期销量明显下滑',rules:'① 今日销量<5  ② 今日销量≤前3日均×60%  ③ 今日销量≤前1日×50%  ④ 近3日均≤前7日均×70%'},
+  '花费骤降':      {col:'#a78bfa',bg:'rgba(167,139,250,.1)',bd:'rgba(167,139,250,.3)', qc:'#f59e0b',desc:'近期花费大幅下降，排查预算或竞价',rules:'① 今日花费≤$30  ② 今日花费≤前3日均×50%  ③ 近3日均花费≤前7日均×80%'},
+  '转化率走低显著':{col:'#22d97a',bg:'rgba(34,217,122,.1)', bd:'rgba(34,217,122,.3)', qc:'#f59e0b',desc:'CR 明显下滑，流量质量或承接需关注',rules:'① 今日CR<4%  ② 今日CR≤前3日均×70%  ③ 近3日均CR≤前7日均×80%'},
+  '无异常成熟产品':{col:'#eceef4',bg:'rgba(236,238,244,.08)',bd:'rgba(236,238,244,.2)', qc:'#f59e0b',desc:'日均销量≥8，数据平稳无明显异动',rules:'日均销量（有效天数）≥8，未触发任何异动阈值，运营稳定'},
+  '低基数正常运营':{col:'#2dd4bf',bg:'rgba(45,212,191,.1)', bd:'rgba(45,212,191,.3)', qc:'#f59e0b',desc:'日均销量<8，波动属正常，多为新品/清仓',rules:'日均广告销量（有效天数）<8，指标波动属正常现象'},
+};
+const ORDER  = ['广告销量增长','广告销量下滑','花费骤降','转化率走低显著','无异常成熟产品','低基数正常运营'];
+const TLABEL = {1:'头部热销',2:'重点',3:'潜力',4:'其他',5:'新品',6:'清仓'};
+
+// ═══ 产品定位表 ═══
+const PM={
+  "AQX12":{d:"AQX12/PVC/头部热销",t:1},"XSX61W":{d:"XSX61W/PVC/头部热销",t:1},"XSX74W":{d:"XSX74W/PVC/头部热销",t:1},
+  "XSX09W":{d:"XSX09W/PVC/头部热销",t:1},"XSX32":{d:"XSX32/牛勃朗/头部热销",t:1},"XSX42K":{d:"XSX42K/牛勃朗/头部热销",t:1},
+  "XSX14T":{d:"XSX14T/牛勃朗/头部热销",t:1},"AQX12A":{d:"AQX12A/PVC/头部热销",t:1},
+  "XSX60W":{d:"XSX60W/PVC/重点",t:2},"XSX67W":{d:"XSX67W/橡胶/重点",t:2},"XSX44W":{d:"XSX44W/PVC/重点",t:2},
+  "XSX03W":{d:"XSX03W/牛勃朗/重点",t:2},"XSX46W":{d:"XSX46W/PVC/重点",t:2},"XSX95K":{d:"XSX95K/牛勃朗/重点",t:2},
+  "XSX96W":{d:"XSX96W/牛勃朗/重点",t:2},"XSX75W":{d:"XSX75W/PVC/重点",t:2},"XSX84W":{d:"XSX84W/橡胶/重点",t:2},
+  "XSX48K":{d:"XSX48K/PVC/重点",t:2},"XSX55W":{d:"XSX55W/牛勃朗/重点",t:2},"XSX25W":{d:"XSX25W/PVC/重点",t:2},
+  "XSX07":{d:"XSX07/牛勃朗/garden重点",t:2},"XSX72":{d:"XSX72/PVC/重点",t:2},"XSX59":{d:"XSX59/PVC/重点",t:2},
+  "XSX50K":{d:"XSX50K/橡胶/重点",t:2},"XSX58":{d:"XSX58/牛勃朗/重点",t:2},"XSX63W":{d:"XSX63W/牛勃朗/重点",t:2},
+  "XSX16W":{d:"XSX16W/牛勃朗/重点",t:2},"XSX68W":{d:"XSX68W/橡胶/重点",t:2},"XSX11":{d:"XSX11/牛勃朗/冬季重点",t:2},
+  "XSX15W":{d:"XSX15W/牛勃朗/冬季重点",t:2},"XSX01":{d:"XSX01/牛勃朗/冬季重点",t:2},"XSX26":{d:"XSX26/牛勃朗/冬季重点",t:2},
+  "XSX21":{d:"XSX21/牛勃朗/garden重点",t:2},"XSX33":{d:"XSX33/牛勃朗/冬季重点",t:2},"XSX69W":{d:"XSX69W/橡胶/冬季重点",t:2},
+  "XSX92W":{d:"XSX92W/橡胶/冬季重点",t:2},"XSX107W":{d:"XSX107W/牛勃朗/已优化重推",t:2},
+  "XSX119W":{d:"XSX119W/牛勃朗/冬季潜力新品",t:3},"XSX125K":{d:"XSX125K/牛勃朗/潜力新品",t:3},
+  "XSX117K":{d:"XSX117K/PVC/潜力重点新品",t:3},"XSX111W":{d:"XSX111W/PVC/潜力新品",t:3},
+  "XSX121":{d:"XSX121/牛勃朗/潜力重点新品",t:3},"XSX82":{d:"XSX82/牛勃朗/潜力甲板靴",t:3},
+  "XSX128W":{d:"XSX128W/PVC/潜力新品",t:3},"XSX118W":{d:"XSX118W/PVC/潜力时尚新品",t:3},
+  "XSX99":{d:"XSX99/橡胶/潜力甲板靴",t:3},"XSX104W":{d:"XSX104W/PVC/潜力新品",t:3},
+  "XSX115":{d:"XSX115/牛勃朗/冬季潜力重点新品",t:3},"XSX127W":{d:"XSX127W/PVC/潜力新品",t:3},
+  "XSX110K":{d:"XSX110K/PVC/潜力新品",t:3},
+  "XSX93W":{d:"XSX93W/牛勃朗/已优化低评分",t:4},"XSX54W":{d:"XSX54W/PVC/常规一般",t:4},
+  "XSX49K":{d:"XSX49K/PVC/常规一般",t:4},"XSX80":{d:"XSX80/牛勃朗/低价自然清",t:4},
+  "XSX90":{d:"XSX90/PVC/常规一般",t:4},"XSX37":{d:"XSX37/牛勃朗/常规一般",t:4},
+  "XSX34W":{d:"XSX34W/牛勃朗/常规一般",t:4},"XSX45W":{d:"XSX45W/PVC/常规一般",t:4},
+  "XSX43":{d:"XSX43/牛勃朗/常规一般",t:4},"XSX04":{d:"XSX04/牛勃朗/狩猎靴",t:4},
+  "XSX77":{d:"XSX77/橡胶/常规一般",t:4},"XSX78":{d:"XSX78/牛勃朗/常规一般",t:4},
+  "XSX06W":{d:"XSX06W/牛勃朗/常规一般",t:4},"XSX85K":{d:"XSX85K/橡胶/常规一般",t:4},
+  "XSX98W":{d:"XSX98W/牛勃朗/优化换帖低评分",t:4},"XSX31":{d:"XSX31/牛勃朗/狩猎靴",t:4},
+  "XSX56":{d:"XSX56/牛勃朗/常规一般",t:4},
+  "XSX116W":{d:"XSX116W/PVC/冬季重点新品",t:5},"XSX122":{d:"XSX122/牛勃朗/冬季重点新品",t:5},
+  "XSX101W":{d:"XSX101W/PVC/热销新品",t:5},"XSX102W":{d:"XSX102W/PVC/热销新品",t:5},
+  "XSX108W":{d:"XSX108W/PVC/针织筒新品",t:5},"XSX105W":{d:"XSX105W/橡胶/新品",t:5},
+  "XSX109":{d:"XSX109/牛勃朗/deck shoes新品",t:5},"XSX103W":{d:"XSX103W/橡胶/争取培养新品",t:5},
+  "XSX97":{d:"XSX97/牛勃朗/deck shoes新品",t:5},"XSX100W":{d:"XSX100W/橡胶/新品",t:5},
+  "XSX126W":{d:"XSX126W/牛勃朗/新品",t:5},"XSX120K":{d:"XSX120K/橡胶/新品",t:5},
+  "XSX123":{d:"XSX123/牛勃朗/难点新品",t:5},"XSX124":{d:"XSX124/牛勃朗/deck shoes新品",t:5},
+  "XSX129K":{d:"XSX129K/牛勃朗/难点新品",t:5},"XSX114":{d:"XSX114/织布/难点新品",t:5},
+  "XSX88W":{d:"XSX88W/PVC/清仓",t:6},"XSX70W":{d:"XSX70W/PVC/清仓",t:6},
+  "XSX76":{d:"XSX76/橡胶/清仓",t:6},"XSX40K":{d:"XSX40K/牛勃朗/清仓",t:6},
+  "XSX106W":{d:"XSX106W/橡胶/清仓",t:6},"XSX65W":{d:"XSX65W/牛勃朗/清仓",t:6},
+  "XSX86K":{d:"XSX86K/橡胶/清仓",t:6},"XSX66K":{d:"XSX66K/PVC/清仓",t:6},
+  "XSX51W":{d:"XSX51W/橡胶/清仓",t:6},
+};
+
+function lkSku(s){
+  if(PM[s])return PM[s];
+  const cs=Object.keys(PM).filter(k=>k===s||k.startsWith(s)||s.startsWith(k));
+  if(!cs.length)return null;
+  cs.sort((a,b)=>Math.abs(a.length-s.length)-Math.abs(b.length-s.length));
+  return PM[cs[0]];
+}
+
+// ═══ 状态 ═══
+let FM={}, DATA=null, CHS=[];
+let MON={spend:true,sales:true,cr:true};
+let ACAT=new Set(ORDER);
+let ATIER=new Set(['all','1','2','3','4','5','6']);
+
+// ═══ 导航 ═══
+const PMETA={
+  imp: {t:'基础数据导入',s:'上传 BI 广告数据 xlsx 文件开始分析'},
+  dash:{t:'数据看板',    s:'产品广告趋势异动诊断（6分类）'},
+};
+function goPg(id){
+  document.querySelectorAll('.nav-a[data-pg]').forEach(n=>n.classList.toggle('on',n.dataset.pg===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='panel-'+id));
+  document.getElementById('pgT').textContent=PMETA[id].t;
+  document.getElementById('pgS').textContent=PMETA[id].s;
+  const has=!!DATA;
+  document.getElementById('dchip').style.display=has&&id==='dash'?'block':'none';
+  document.getElementById('btnRe').style.display=has&&id==='dash'?'flex':'none';
+}
+document.querySelectorAll('.nav-a[data-pg]').forEach(n=>n.addEventListener('click',()=>goPg(n.dataset.pg)));
+
+// ═══ 文件处理 ═══
+const dz=document.getElementById('dz');
+const fi=document.getElementById('fi');
+
+// 按钮点击
+document.getElementById('btnPick').addEventListener('click',function(e){
+  e.preventDefault();e.stopPropagation();fi.click();
+});
+// input change
+fi.addEventListener('change',function(){
+  if(this.files&&this.files.length>0){addF([...this.files]);}
+  this.value='';
+});
+// 拖拽
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('ov');});
+dz.addEventListener('dragleave',function(){dz.classList.remove('ov');});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('ov');addF([...e.dataTransfer.files]);});
+// 清空
+document.getElementById('btnClr').addEventListener('click',function(){FM={};renderFL();});
+// 重新导入
+document.getElementById('btnRe').addEventListener('click',function(){
+  DATA=null;
+  document.getElementById('nodat').style.display='flex';
+  document.getElementById('dbody').style.display='none';
+  document.getElementById('pw').classList.remove('on');
+  document.getElementById('pt').classList.remove('on');
+  document.getElementById('pb').style.width='0%';
+  document.getElementById('btnGo').classList.add('on');
+  goPg('imp');
+});
+
+function dFromName(n){
+  const m=n.match(/(\d{1,2})[_\-\.](\d{1,2})/);
+  return m?`${+m[1]}/${+m[2]}`:null;
+}
+function addF(files){
+  let added=0;
+  files.forEach(function(f){
+    if(f.name.match(/\.xlsx?$/i)){
+      if(!FM[f.name]){FM[f.name]={file:f,date:dFromName(f.name)};added++;}
+    }
+  });
+  renderFL();
+}
+function renderFL(){
+  const entries=Object.values(FM).sort(function(a,b){
+    const p=function(d){if(!d)return 0;const pts=d.split('/').map(Number);return pts[0]*100+pts[1];};
+    return p(a.date)-p(b.date);
+  });
+  document.getElementById('fct').textContent=entries.length;
+  const flw=document.getElementById('flw');
+  if(!entries.length){flw.style.display='none';document.getElementById('btnGo').classList.remove('on');return;}
+  flw.style.display='block';
+  document.getElementById('chips').innerHTML=entries.map(function(u){
+    const lbl=(u.date?u.date+' · ':'')+u.file.name.replace(/\.xlsx?$/i,'');
+    return '<div class="chip"><span class="cd"></span>'+lbl+'<span class="cx" data-n="'+u.file.name+'">×</span></div>';
+  }).join('');
+  document.querySelectorAll('.chip .cx').forEach(function(el){
+    el.addEventListener('click',function(){delete FM[el.dataset.n];renderFL();});
+  });
+  document.getElementById('btnGo').classList.add('on');
+}
+
+// ═══ 解析 ═══
+function toN(v){var n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n;}
+function nSku(s){
+  if(typeof s!=='string')return null;
+  s=s.replace(/ACP0?$/,'');s=s.replace(/WCP0?$/,'W');
+  s=s.replace(/KCP0?$/,'K');s=s.replace(/TCP0?$/,'T');
+  s=s.replace(/CP0?$/,'');s=s.replace(/(SY|A0[12])$/,'');
+  return s.trim()||null;
+}
+function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
+function avgA(a){var v=a.filter(function(x){return x>0;});return v.length?v.reduce(function(x,y){return x+y;},0)/v.length:0;}
+function setP(pct,msg){
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('pt').textContent=msg;
+  if(pct>0){document.getElementById('pw').classList.add('on');document.getElementById('pt').classList.add('on');}
+}
+
+function classify(sales,spend,cr){
+  var n=sales.length;
+  if(!n)return{cat:'低基数正常运营',sig:'数据不足'};
+  var ts=sales[n-1],tsp=spend[n-1],tcr=cr[n-1];
+  var p3s =n>3?avg(sales.slice(-4,-1)):avg(sales.slice(0,-1));
+  var p3sp=n>3?avg(spend.slice(-4,-1)):avg(spend.slice(0,-1));
+  var p3cr=n>3?avg(cr.slice(-4,-1))   :avg(cr.slice(0,-1));
+  var p1s =n>=2?sales[n-2]:sales[n-1];
+  var nr3s=avg(sales.slice(Math.max(0,n-3)));
+  var nr3sp=avg(spend.slice(Math.max(0,n-3)));
+  var nr3cr=avg(cr.slice(Math.max(0,n-3)));
+  var b7s=Math.max(0,n-10),b7e=Math.max(0,n-3);
+  var bf7s=b7e>b7s?avg(sales.slice(b7s,b7e)):p3s;
+  var bf7sp=b7e>b7s?avg(spend.slice(b7s,b7e)):p3sp;
+  var bf7cr=b7e>b7s?avg(cr.slice(b7s,b7e))   :p3cr;
+  var ha=avgA(sales);
+  if(ha<8)return{cat:'低基数正常运营',sig:'日均'+ha.toFixed(1)+'<8'};
+  if(ts>=p3s*1.8&&p3s>=8)return{cat:'广告销量增长',sig:'今日'+ts.toFixed(0)+'≥前3均×180%'};
+  if(ts>=p1s*2.0&&p3s>=8)return{cat:'广告销量增长',sig:'今日'+ts.toFixed(0)+'≥前1日×200%'};
+  if(bf7s>0&&nr3s>=bf7s*1.5)return{cat:'广告销量增长',sig:'近3均'+nr3s.toFixed(0)+'≥前7均×150%'};
+  if(ts<5)return{cat:'广告销量下滑',sig:'今日销量'+ts.toFixed(0)+'<5'};
+  if(p3s>0&&ts<=p3s*0.6)return{cat:'广告销量下滑',sig:'今日'+ts.toFixed(0)+'≤前3均×60%'};
+  if(p1s>0&&ts<=p1s*0.5)return{cat:'广告销量下滑',sig:'今日'+ts.toFixed(0)+'≤前1日×50%'};
+  if(bf7s>0&&nr3s<=bf7s*0.7)return{cat:'广告销量下滑',sig:'近3均'+nr3s.toFixed(0)+'≤前7均×70%'};
+  if(tsp<=30)return{cat:'花费骤降',sig:'今日花费$'+tsp.toFixed(0)+'≤$30'};
+  if(p3sp>0&&tsp<=p3sp*0.5)return{cat:'花费骤降',sig:'今日花费≤前3均×50%'};
+  if(bf7sp>0&&nr3sp<=bf7sp*0.8)return{cat:'花费骤降',sig:'近3均花费≤前7均×80%'};
+  if(tcr<4)return{cat:'转化率走低显著',sig:'今日CR'+tcr.toFixed(1)+'%<4%'};
+  if(p3cr>0&&tcr<=p3cr*0.7)return{cat:'转化率走低显著',sig:'今日CR≤前3均×70%'};
+  if(bf7cr>0&&nr3cr<=bf7cr*0.8)return{cat:'转化率走低显著',sig:'近3均CR'+nr3cr.toFixed(1)+'%≤前7均×80%'};
+  return{cat:'无异常成熟产品',sig:'数据平稳无明显异动'};
+}
+
+document.getElementById('btnGo').addEventListener('click',analyze);
+
+async function analyze(){
+  var entries=Object.values(FM).sort(function(a,b){
+    var p=function(d){if(!d)return 0;var pts=d.split('/').map(Number);return pts[0]*100+pts[1];};
+    return p(a.date)-p(b.date);
+  });
+  if(!entries.length)return;
+  var recs=[],dates=[];
+  for(var i=0;i<entries.length;i++){
+    var u=entries[i];
+    setP(Math.round(5+i/entries.length*70),'解析 '+u.file.name+'…');
+    await new Promise(function(r){setTimeout(r,10);});
+    try{
+      var buf=await u.file.arrayBuffer();
+      var wb=XLSX.read(buf,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{defval:0,raw:true});
+      var date=u.date||('文件'+(i+1));
+      if(dates.indexOf(date)<0)dates.push(date);
+      for(var j=0;j<rows.length;j++){
+        var row=rows[j];
+        var rawSku=String(row['产品线SKU']||row['SKU']||'').trim();
+        var sku=nSku(rawSku);
+        if(!sku)continue;
+        var sp=toN(row['实际花费']);
+        var sl=toN(row['实际广告销量']);
+        var cr=toN(row['实际广告转化率'])*100;
+        if(sp===0&&sl===0)continue;
+        recs.push({date:date,sku:sku,sp:sp,sl:sl,cr:cr});
+      }
+    }catch(e){console.error('解析失败:',u.file.name,e);}
+  }
+  setP(82,'聚合数据…');await new Promise(function(r){setTimeout(r,10);});
+
+  var agg={};
+  for(var k=0;k<recs.length;k++){
+    var r=recs[k],key=r.sku+'||'+r.date;
+    if(!agg[key])agg[key]={sku:r.sku,date:r.date,sp:0,sl:0,cr:0,crN:0};
+    agg[key].sp+=r.sp; agg[key].sl+=r.sl;
+    if(r.cr>0){agg[key].cr+=r.cr;agg[key].crN++;}
+  }
+  var pm={};
+  Object.values(agg).forEach(function(r){
+    if(r.crN>0)r.cr=r.cr/r.crN;
+    if(!pm[r.sku])pm[r.sku]={};
+    pm[r.sku][r.date]=r;
+  });
+
+  var skus=Object.keys(pm).filter(function(s){
+    return dates.reduce(function(sum,d){return sum+(pm[s][d]?pm[s][d].sp:0);},0)>=10;
+  });
+
+  setP(92,'异动诊断…');await new Promise(function(r){setTimeout(r,10);});
+
+  var products=skus.map(function(sku){
+    var spend=dates.map(function(d){return pm[sku][d]?+pm[sku][d].sp.toFixed(1):0;});
+    var sales=dates.map(function(d){return pm[sku][d]?+pm[sku][d].sl.toFixed(0):0;});
+    var cr   =dates.map(function(d){return pm[sku][d]?+pm[sku][d].cr.toFixed(2):0;});
+    var info=lkSku(sku);
+    var res=classify(sales,spend,cr);
+    return{sku:sku,nm:info?info.d:sku,tr:info?info.t:4,spend:spend,sales:sales,cr:cr,dates:dates,cat:res.cat,sig:res.sig,avgS:avgA(sales)};
+  });
+
+  setP(100,'完成！');await new Promise(function(r){setTimeout(r,300);});
+  DATA={products:products,dates:dates};
+  renderDash();
+  goPg('dash');
+}
+
+// ═══ 渲染看板 ═══
+function renderDash(){
+  CHS.forEach(function(c){try{c.destroy();}catch(e){}});CHS=[];
+  var products=DATA.products,dates=DATA.dates;
+  document.getElementById('nodat').style.display='none';
+  document.getElementById('dbody').style.display='block';
+  document.getElementById('dchip').textContent=dates.length===1?dates[0]:dates[0]+' → '+dates[dates.length-1];
+
+  var groups={};ORDER.forEach(function(c){groups[c]=[];});
+  products.forEach(function(p){groups[p.cat].push(p);});
+  ORDER.forEach(function(c){groups[c].sort(function(a,b){return a.tr-b.tr||b.avgS-a.avgS;});});
+
+  var tSp=products.reduce(function(s,p){return s+(p.spend[p.spend.length-1]||0);},0);
+  var tSl=products.reduce(function(s,p){return s+(p.sales[p.sales.length-1]||0);},0);
+  document.getElementById('scrow').innerHTML=
+    '<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#38bdf8,#a78bfa)"></div><div class="sc-l">产品总数</div><div class="sc-v">'+products.length+'</div><div class="sc-d">共 '+dates.length+' 天数据</div></div>'+
+    '<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#a78bfa"></div><div class="sc-l">最新日花费</div><div class="sc-v" style="color:#a78bfa">$'+tSp.toFixed(0)+'</div><div class="sc-d">所有产品合计</div></div>'+
+    '<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#f59e0b"></div><div class="sc-l">最新日销量</div><div class="sc-v" style="color:#f59e0b">'+tSl.toFixed(0)+'</div><div class="sc-d">所有产品合计</div></div>'+
+    ORDER.map(function(c){return '<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:'+CATS[c].col+'"></div><div class="sc-l">'+c+'</div><div class="sc-v" style="color:'+CATS[c].col+'">'+groups[c].length+'</div><div class="sc-d">个产品</div></div>';}).join('');
+
+  buildCatBar();
+  renderSecs(groups);
+}
+
+function buildCatBar(){
+  var bar=document.getElementById('catbar');
+  bar.querySelectorAll('.ft').forEach(function(b){b.remove();});
+  var ab=document.createElement('button');ab.className='ft';ab.textContent='全部';
+  ab.style.cssText=ACAT.size===ORDER.length?'background:var(--txt);color:#0d0f14;border-color:var(--txt)':'';
+  ab.onclick=function(){ACAT=ACAT.size===ORDER.length?new Set():new Set(ORDER);buildCatBar();rerender();};
+  bar.appendChild(ab);
+  ORDER.forEach(function(c){
+    var cfg=CATS[c],btn=document.createElement('button');btn.className='ft';btn.textContent=c;
+    btn.style.cssText=ACAT.has(c)?'background:'+cfg.col+';color:#0d0f14;border-color:'+cfg.col:'border-color:'+cfg.col+';color:'+cfg.col;
+    btn.onclick=function(){ACAT.has(c)?ACAT.delete(c):ACAT.add(c);buildCatBar();rerender();};
+    bar.appendChild(btn);
+  });
+}
+
+function togM(m){
+  var on=Object.values(MON).filter(Boolean).length;
+  if(MON[m]&&on===1)return;
+  MON[m]=!MON[m];
+  var btn=document.getElementById('mb-'+m);
+  if(MON[m]){btn.classList.add('on');btn.querySelector('.tk').style.opacity='.85';
+    btn.style.background=m==='spend'?'rgba(167,139,250,.12)':m==='sales'?'rgba(245,158,11,.1)':'rgba(34,217,122,.1)';}
+  else{btn.classList.remove('on');btn.querySelector('.tk').style.opacity='0';btn.style.background='transparent';}
+  rerender();
+}
+
+function togT(t){
+  if(t==='all'){
+    if(ATIER.has('all')){ATIER=new Set();document.querySelectorAll('.tb[data-tr]').forEach(function(b){b.classList.remove('on');b.querySelector('.tk').style.opacity='0';b.style.background='transparent';});}
+    else{ATIER=new Set(['all','1','2','3','4','5','6']);document.querySelectorAll('.tb[data-tr]').forEach(function(b){b.classList.add('on');b.querySelector('.tk').style.opacity='.85';});}
+    rerender();return;
+  }
+  if(ATIER.has(t))ATIER.delete(t);else ATIER.add(t);
+  if(['1','2','3','4','5','6'].every(function(x){return ATIER.has(x);}))ATIER.add('all');else ATIER.delete('all');
+  document.querySelectorAll('.tb[data-tr]').forEach(function(b){
+    var on=ATIER.has(b.dataset.tr);b.classList.toggle('on',on);
+    b.querySelector('.tk').style.opacity=on?'.85':'0';
+    if(!on&&b.dataset.tr!=='all')b.style.background='transparent';
+  });
+  rerender();
+}
+
+function rerender(){
+  if(!DATA)return;
+  var groups={};ORDER.forEach(function(c){groups[c]=[];});
+  DATA.products.forEach(function(p){groups[p.cat].push(p);});
+  ORDER.forEach(function(c){groups[c].sort(function(a,b){return a.tr-b.tr||b.avgS-a.avgS;});});
+  renderSecs(groups);
+}
+
+function norm(arr){
+  var mn=Math.min.apply(null,arr),mx=Math.max.apply(null,arr);
+  if(mx===mn)return arr.map(function(){return 50;});
+  return arr.map(function(v){return (v-mn)/(mx-mn)*80+10;});
+}
+
+function renderSecs(groups){
+  CHS.forEach(function(c){try{c.destroy();}catch(e){}});CHS=[];
+  var el=document.getElementById('secs');el.innerHTML='';
+  var show=ORDER.filter(function(c){return ACAT.has(c);});
+  if(!show.length){el.innerHTML='<div style="text-align:center;padding:4rem;color:var(--mut);font-size:14px;font-weight:600">请至少选择一个分类</div>';return;}
+
+  var tasks=[];
+
+  show.forEach(function(cat){
+    var cfg=CATS[cat];
+    var allP=groups[cat]||[];
+    var prods=allP.filter(function(p){return ATIER.has('all')||ATIER.has(String(p.tr));});
+    var hid=allP.length-prods.length;
+
+    var sec=document.createElement('div');sec.className='csec';
+    var hidStr=hid>0?' <span style="color:var(--dim);font-size:11px">（已过滤 '+hid+' 个）</span>':'';
+    sec.innerHTML=
+      '<div class="chdr">'+
+        '<span class="cpil" style="background:'+cfg.bg+';color:'+cfg.col+';border:1.5px solid '+cfg.bd+'">'+cat+'</span>'+
+        '<span class="ccnt">'+prods.length+' 个产品'+hidStr+'</span>'+
+        '<span class="cdsc">'+cfg.desc+'</span>'+
+      '</div>'+
+      '<div class="crls" style="border-color:'+cfg.col+'">'+cfg.rules+'</div>'+
+      (prods.length?'<div class="pg" id="g'+cat.replace(/[^a-z0-9]/gi,'_')+'"></div>':'<div style="text-align:center;padding:1.5rem;color:var(--dim);font-size:13px;font-weight:600">当前定位筛选下无产品</div>');
+    el.appendChild(sec);
+    if(!prods.length)return;
+
+    var grid=sec.querySelector('.pg');
+    prods.forEach(function(p,i){
+      var cid='cv'+cat.replace(/[^a-z0-9]/gi,'_')+i;
+      var sl=p.spend[p.spend.length-1]||0;
+      var ql=p.sales[p.sales.length-1]||0;
+      var cl=p.cr[p.cr.length-1]||0;
+      var mets=[];
+      if(MON.spend)mets.push({v:'$'+sl.toFixed(0),l:'花费',c:C_SPEND});
+      if(MON.sales)mets.push({v:ql.toFixed(0),    l:'销量',c:cfg.qc});
+      if(MON.cr)   mets.push({v:cl.toFixed(1)+'%',l:'CR',  c:C_CR});
+
+      var card=document.createElement('div');card.className='pc';
+      card.innerHTML=
+        '<div class="pct">'+
+          '<div style="min-width:0;flex:1"><div class="pnm">'+p.nm+'</div></div>'+
+          '<div class="pbdg">'+
+            '<div class="pd" style="background:'+cfg.col+';box-shadow:0 0 6px '+cfg.col+'99"></div>'+
+            '<span class="tb2 t'+p.tr+'">'+( TLABEL[p.tr]||'其他')+'</span>'+
+            '<span class="sg" style="background:'+cfg.bg+';color:'+cfg.col+';border:1px solid '+cfg.bd+'">'+p.sig+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="cw"><canvas id="'+cid+'"></canvas></div>'+
+        '<div class="mr" style="grid-template-columns:repeat('+mets.length+',1fr)">'+
+          mets.map(function(m){return '<div class="me"><span class="mv" style="color:'+m.c+'">'+m.v+'</span><span class="ml">'+m.l+'</span></div>';}).join('')+
+        '</div>';
+      grid.appendChild(card);
+      tasks.push({cid:cid,p:p,cfg:cfg});
+    });
+  });
+
+  // 等 150ms 确保 DOM 布局完成后统一渲染所有图表
+  setTimeout(function(){
+    tasks.forEach(function(t){drawChart(t.cid,t.p,t.cfg);});
+  },150);
+}
+
+function drawChart(cid,p,cfg){
+  var canvas=document.getElementById(cid);
+  if(!canvas)return;
+  var wrap=canvas.parentElement;
+  var w=wrap?wrap.clientWidth:0;
+  if(w<=0)w=wrap?wrap.offsetWidth:300;
+  if(w<=0)w=300;
+  canvas.width=w;
+  canvas.height=84;
+
+  var ak=['spend','sales','cr'].filter(function(k){return MON[k];});
+  var ds=[];
+  var oS=p.spend.slice(),oQ=p.sales.slice(),oC=p.cr.slice();
+  if(MON.spend)ds.push({data:norm(p.spend),orig:oS,borderColor:C_SPEND,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:C_SPEND,tension:.35,fill:false});
+  if(MON.sales)ds.push({data:norm(p.sales),orig:oQ,borderColor:cfg.qc,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:cfg.qc,tension:.35,fill:false});
+  if(MON.cr)   ds.push({data:norm(p.cr),   orig:oC,borderColor:C_CR,  borderWidth:1.5,pointRadius:2,  pointBackgroundColor:C_CR,  tension:.35,fill:false,borderDash:[5,3]});
+
+  var ch=new Chart(canvas,{
+    type:'line',
+    data:{labels:p.dates,datasets:ds},
+    options:{
+      responsive:false,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      animation:{duration:150},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1c2030',borderColor:'rgba(255,255,255,.15)',borderWidth:1,
+          titleColor:'#c0c8d8',bodyColor:'#eceef4',padding:9,
+          titleFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'700'},
+          bodyFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'600'},
+          callbacks:{
+            title:function(c){return c[0].label;},
+            label:function(c){
+              var k=ak[c.datasetIndex];
+              var orig=ds[c.datasetIndex].orig[c.dataIndex];
+              return k==='spend'?'花费: $'+orig.toFixed(0):k==='sales'?'销量: '+orig.toFixed(0):'CR: '+orig.toFixed(1)+'%';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#8b95a8',font:{size:9,family:'Microsoft YaHei,sans-serif'},maxTicksLimit:6,maxRotation:0},grid:{display:false},border:{color:'rgba(255,255,255,.05)'}},
+        y:{display:false,min:0,max:100}
+      }
+    }
+  });
+  CHS.push(ch);
+}
+</script>
+</body>
+</html>
