@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>广告监控看板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0d0f14;--sur:#141720;--sur2:#1c2030;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.16);
+  --tx:#eceef4;--mu:#a0aab8;--di:#6b7a94;
+  --gn:#22d97a;--rd:#ff4d6d;--pu:#a78bfa;--bl:#38bdf8;--tl:#2dd4bf;
+  --sw:224px;--ff:'Microsoft YaHei','微软雅黑',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--ff);display:flex;min-height:100vh;font-size:14px}
+.sb{width:var(--sw);min-height:100vh;background:var(--sur);border-right:1px solid var(--b1);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:200}
+.sb-logo{padding:1.4rem 1.25rem .9rem;border-bottom:1px solid var(--b2)}
+.sb-t{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800}
+.sb-dot{width:9px;height:9px;border-radius:50%;background:var(--gn);box-shadow:0 0 8px var(--gn)}
+.sb-sub{font-size:12px;color:var(--mu);margin-top:5px;font-weight:600}
+.sb-nav{flex:1;padding:1rem 0}
+.nb{font-size:11px;color:var(--di);letter-spacing:.08em;text-transform:uppercase;padding:0 1.25rem;margin:1rem 0 .4rem;font-weight:700}
+.na{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-size:14px;font-weight:700;color:var(--mu);cursor:pointer;border-left:2px solid transparent;user-select:none;transition:all .15s}
+.na:hover{color:var(--tx);background:rgba(255,255,255,.03)}
+.na.on{color:var(--tx);border-left-color:var(--gn);background:rgba(34,217,122,.06)}
+.na svg{width:16px;height:16px;flex-shrink:0;opacity:.6}
+.na.on svg{opacity:1;color:var(--gn)}
+.sb-foot{padding:1rem 1.25rem;border-top:1px solid var(--b1);font-size:12px;color:var(--di);line-height:1.8;font-weight:600}
+.sd{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gn);margin-right:5px}
+.mn{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.tp{height:58px;border-bottom:1px solid var(--b1);background:var(--sur);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100}
+.pt{font-size:17px;font-weight:800}
+.ps{font-size:13px;color:var(--mu);font-weight:600;margin-top:1px}
+.tr{display:flex;align-items:center;gap:10px}
+.dc{font-size:13px;color:var(--mu);padding:5px 12px;border:1px solid var(--b2);border-radius:6px;background:var(--sur2);font-weight:700;display:none}
+.bts{display:none;align-items:center;gap:6px;padding:7px 14px;background:transparent;color:var(--mu);border:1px solid var(--b2);border-radius:8px;font-size:13px;font-family:var(--ff);cursor:pointer;font-weight:700}
+.bts:hover{color:var(--tx);background:var(--sur2)}
+.pn{display:none;flex:1}.pn.on{display:block}
+.pb{padding:2rem;max-width:1800px;margin:0 auto}
+/* import */
+.iw{min-height:calc(100vh - 58px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+.iw::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(34,217,122,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(167,139,250,.05) 0%,transparent 60%)}
+.it{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-align:center;line-height:1.1;margin-bottom:.6rem;letter-spacing:-.02em}
+.it span{background:linear-gradient(135deg,var(--gn),var(--bl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.is{font-size:15px;color:var(--mu);text-align:center;margin-bottom:2rem;line-height:1.7;font-weight:600}
+.dz{width:100%;max-width:560px;border:1.5px dashed var(--b2);border-radius:20px;padding:2.25rem 2rem;text-align:center;background:var(--sur);transition:all .25s;cursor:pointer}
+.dz.ov,.dz:hover{border-color:var(--gn);background:rgba(34,217,122,.06);transform:translateY(-2px)}
+.di2{width:52px;height:52px;margin:0 auto 1rem;border-radius:14px;background:var(--sur2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center}
+.dz h3{font-size:15px;font-weight:700;margin-bottom:.4rem}
+.dz p{font-size:13px;color:var(--mu);margin-bottom:1.1rem;line-height:1.6;font-weight:600}
+.bp{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--gn);color:#0d1a11;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--ff);cursor:pointer}
+.fw{width:100%;max-width:560px;margin-top:1.5rem}
+.fh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.fl{font-size:11px;color:var(--di);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.bc{font-size:11px;color:var(--rd);cursor:pointer;font-weight:700;background:none;border:none;font-family:var(--ff);padding:0}
+.cs{display:flex;flex-wrap:wrap;gap:7px}
+.ch{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--sur2);border:1px solid var(--b2);border-radius:100px;font-size:12px;font-weight:700}
+.ch .cd{width:6px;height:6px;border-radius:50%;background:var(--gn);flex-shrink:0}
+.ch .cx{cursor:pointer;color:var(--mu);font-size:14px;margin-left:2px;line-height:1;font-weight:900}
+.ch .cx:hover{color:var(--rd)}
+.bg{margin-top:1.75rem;display:none;align-items:center;gap:10px;padding:13px 32px;background:linear-gradient(135deg,var(--gn),#16b86a);color:#0d1a11;border:none;border-radius:12px;font-size:15px;font-weight:800;font-family:var(--ff);cursor:pointer}
+.bg.on{display:inline-flex}
+.pw{width:100%;max-width:560px;height:3px;background:var(--b1);border-radius:2px;margin-top:1.25rem;overflow:hidden;display:none}
+.pw.on{display:block}
+.pb2{height:100%;background:linear-gradient(90deg,var(--gn),var(--bl));width:0%;transition:width .3s;border-radius:2px}
+.pt2{margin-top:.6rem;font-size:12px;color:var(--mu);display:none;font-weight:600}
+.pt2.on{display:block}
+/* dashboard */
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.75rem}
+.sc{background:var(--sur);border:1px solid var(--b1);border-radius:14px;padding:1rem 1.1rem;position:relative;overflow:hidden}
+.sl{font-size:11px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;font-weight:800}
+.sv{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.2rem}
+.sd2{font-size:12px;color:var(--mu);font-weight:700}
+.ct{background:var(--sur);border:1px solid var(--b1);border-radius:14px;padding:14px 16px;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:10px}
+.rw{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rl{font-size:12px;color:var(--di);font-weight:800;letter-spacing:.05em;margin-right:4px;white-space:nowrap}
+.tb{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .18s;font-family:var(--ff);user-select:none;white-space:nowrap}
+.tc{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tk{font-size:11px;opacity:0;margin-left:1px}
+.tb.on .tk{opacity:.85}
+.ft{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--b2);background:transparent;color:var(--mu);font-family:var(--ff);transition:all .18s;white-space:nowrap}
+.ft:hover{color:var(--tx)}
+.sec{margin-bottom:2.5rem}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:.7rem;padding-bottom:10px;border-bottom:1px solid var(--b2)}
+.sp{padding:4px 14px;border-radius:100px;font-size:13px;font-weight:800}
+.sn{font-size:13px;color:var(--mu);font-weight:700}
+.sd3{font-size:12px;color:var(--di);margin-left:auto;font-weight:700}
+.sr2{font-size:11px;color:var(--di);font-weight:600;margin-bottom:10px;line-height:1.7;padding:7px 12px;background:var(--sur2);border-radius:8px;border-left:2px solid}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1400px){.gr{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1100px){.gr{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px) {.gr{grid-template-columns:repeat(2,1fr)}}
+.pc{background:var(--sur);border:1px solid var(--b1);border-radius:14px;padding:13px 13px 11px;transition:transform .18s,border-color .18s}
+.pc:hover{transform:translateY(-2px);border-color:var(--b2)}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:4px}
+.pn2{font-size:12px;font-weight:800;line-height:1.35;word-break:break-all;min-width:0;flex:1}
+.pbg{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;max-width:76px}
+.pd2{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tg{font-size:9px;font-weight:800;padding:2px 6px;border-radius:6px;white-space:nowrap;letter-spacing:.04em;line-height:1.4}
+.t1{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
+.t2{background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.25)}
+.t3{background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}
+.t4{background:rgba(107,114,128,.12);color:#9ca3af;border:1px solid rgba(107,114,128,.25)}
+.t5{background:rgba(34,217,122,.1);color:#22d97a;border:1px solid rgba(34,217,122,.22)}
+.t6{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.22)}
+.sg{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;line-height:1.4;max-width:72px;text-align:right;word-break:break-all;overflow:hidden}
+/* 图表容器：固定高度，让Chart.js自由适配宽度 */
+.cw{position:relative;height:84px;margin-bottom:9px}
+.mr{display:grid;gap:5px}
+.me{display:flex;flex-direction:column;align-items:center;background:var(--sur2);border-radius:8px;padding:6px 4px}
+.mv{font-size:13px;font-weight:800;line-height:1.2}
+.ml{font-size:10px;color:var(--mu);letter-spacing:.04em;font-weight:700;margin-top:1px}
+#nd{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);padding:2rem}
+.gb{margin-top:1.25rem;display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--gn);color:#0d1a11;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--ff);cursor:pointer}
+</style>
+</head>
+<body>
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-t"><span class="sb-dot"></span>广告监控</div>
+    <div class="sb-sub">Amazon Ads Dashboard</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nb">工具</div>
+    <div class="na on" data-pg="imp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      基础数据导入
+    </div>
+    <div class="na" data-pg="dash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      数据看板
+    </div>
+  </nav>
+  <div class="sb-foot"><span class="sd"></span>本地运行 · 数据不上传<br>HS 广告数据 BI 报表</div>
+</aside>
+<div class="mn">
+  <div class="tp">
+    <div><div class="pt" id="pgT">基础数据导入</div><div class="ps" id="pgS">上传 BI 广告数据 xlsx 文件开始分析</div></div>
+    <div class="tr">
+      <div class="dc" id="dc"></div>
+      <button class="bts" id="btnRe">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        重新导入
+      </button>
+    </div>
+  </div>
+  <div class="pn on" id="pn-imp">
+    <div class="iw">
+      <h1 class="it">导入广告数据<br><span>一键生成趋势看板</span></h1>
+      <p class="is">支持多天 BI 广告数据文件，自动按日期排序<br>读取「产品线SKU · 实际花费 · 实际广告销量 · 实际广告转化率」</p>
+      <div class="dz" id="dz">
+        <div class="di2">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22d97a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <h3>拖拽文件到此处，或点击下方按钮选择</h3>
+        <p>支持多个 .xlsx 文件，文件名含日期自动识别排序<br>如：BI-3_17广告数据.xlsx</p>
+        <button class="bp" id="btnPick">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          选择文件
+        </button>
+      </div>
+      <input type="file" id="fi" multiple accept=".xlsx,.xls" style="display:none;position:absolute;left:-9999px">
+      <div class="fw" id="fw" style="display:none">
+        <div class="fh">
+          <span class="fl">已选文件（<span id="fct">0</span> 个）</span>
+          <button class="bc" id="btnClr">清空全部</button>
+        </div>
+        <div class="cs" id="cs"></div>
+      </div>
+      <button class="bg" id="btnGo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        开始分析并生成看板
+      </button>
+      <div class="pw" id="pw"><div class="pb2" id="pb"></div></div>
+      <div class="pt2" id="pt"></div>
+    </div>
+  </div>
+  <div class="pn" id="pn-dash">
+    <div id="nd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;opacity:.15;margin-bottom:1rem"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <p style="font-size:16px;font-weight:700;margin-bottom:.4rem">暂无数据</p>
+      <span style="font-size:13px;color:var(--mu);font-weight:600">请先前往「基础数据导入」上传文件</span>
+      <button class="gb" onclick="goPg('imp')">前往导入数据</button>
+    </div>
+    <div class="pb" id="db" style="display:none">
+      <div class="sr" id="sr"></div>
+      <div class="ct">
+        <div class="rw">
+          <span class="rl">显示指标：</span>
+          <div class="tb on" id="mb-spend" onclick="togM('spend')" style="border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.12)"><span class="tc" style="background:#a78bfa"></span>花费<span class="tk">✓</span></div>
+          <div class="tb on" id="mb-sales" onclick="togM('sales')" style="border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)"><span class="tc" style="background:#f59e0b"></span>广告销量<span class="tk">✓</span></div>
+          <div class="tb on" id="mb-cr"    onclick="togM('cr')"    style="border-color:#22d97a;color:#22d97a;background:rgba(34,217,122,.1)"><span class="tc" style="background:#22d97a"></span>CR%<span class="tk">✓</span></div>
+        </div>
+        <div class="rw" id="catbar"><span class="rl">分类筛选：</span></div>
+        <div class="rw">
+          <span class="rl">产品定位：</span>
+          <div class="tb on" data-tr="all" onclick="togT('all')" style="border-color:var(--mu);color:var(--mu);background:rgba(160,170,184,.1)">全部<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="1" onclick="togT('1')" style="border-color:#ffd700;color:#ffd700"><span class="tc" style="background:#ffd700"></span>头部热销<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="2" onclick="togT('2')" style="border-color:#38bdf8;color:#38bdf8"><span class="tc" style="background:#38bdf8"></span>重点<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="3" onclick="togT('3')" style="border-color:#a78bfa;color:#a78bfa"><span class="tc" style="background:#a78bfa"></span>潜力<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="4" onclick="togT('4')" style="border-color:#9ca3af;color:#9ca3af"><span class="tc" style="background:#9ca3af"></span>其他<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="5" onclick="togT('5')" style="border-color:#22d97a;color:#22d97a"><span class="tc" style="background:#22d97a"></span>新品<span class="tk">✓</span></div>
+          <div class="tb on" data-tr="6" onclick="togT('6')" style="border-color:#ff4d6d;color:#ff4d6d"><span class="tc" style="background:#ff4d6d"></span>清仓<span class="tk">✓</span></div>
+        </div>
+      </div>
+      <div id="secs"></div>
+    </div>
+  </div>
+</div>
+<script>
+const CS='#a78bfa',CQ='#f59e0b',CC='#22d97a';
+const CATS={
+  '广告销量增长': {c:'#f59e0b',bg:'rgba(245,158,11,.1)', bd:'rgba(245,158,11,.3)', qc:CQ,desc:'今日或近期销量明显上升',rules:'① 今日销量≥前3日均×180%（基础≥8）② 今日销量≥前1日×200%（基础≥8）③ 近3日均≥前7日均×150%'},
+  '广告销量下滑': {c:'#f97316',bg:'rgba(249,115,22,.1)', bd:'rgba(249,115,22,.3)', qc:'#f97316',desc:'今日或近期销量明显下滑',rules:'① 今日销量<5  ② 今日销量≤前3日均×60%  ③ 今日销量≤前1日×50%  ④ 近3日均≤前7日均×70%'},
+  '花费骤降':     {c:'#a78bfa',bg:'rgba(167,139,250,.1)',bd:'rgba(167,139,250,.3)',qc:CQ,desc:'近期花费大幅下降，排查预算或竞价',rules:'① 今日花费≤$30  ② 今日花费≤前3日均×50%  ③ 近3日均花费≤前7日均×80%'},
+  '转化率走低显著':{c:CC,bg:'rgba(34,217,122,.1)', bd:'rgba(34,217,122,.3)', qc:CQ,desc:'CR 明显下滑，流量质量或承接需关注',rules:'① 今日CR<4%  ② 今日CR≤前3日均×70%  ③ 近3日均CR≤前7日均×80%'},
+  '无异常成熟产品':{c:'#eceef4',bg:'rgba(236,238,244,.08)',bd:'rgba(236,238,244,.2)',qc:CQ,desc:'日均销量≥8，数据平稳无明显异动',rules:'日均销量（有效天数）≥8，未触发任何异动阈值，运营稳定'},
+  '低基数正常运营':{c:'#2dd4bf',bg:'rgba(45,212,191,.1)', bd:'rgba(45,212,191,.3)', qc:CQ,desc:'日均销量<8，波动属正常，多为新品/清仓',rules:'日均广告销量（有效天数）<8，指标波动属正常现象'},
+};
+const ORDER=['广告销量增长','广告销量下滑','花费骤降','转化率走低显著','无异常成熟产品','低基数正常运营'];
+const TL={1:'头部热销',2:'重点',3:'潜力',4:'其他',5:'新品',6:'清仓'};
+const PMETA={imp:{t:'基础数据导入',s:'上传 BI 广告数据 xlsx 文件开始分析'},dash:{t:'数据看板',s:'产品广告趋势异动诊断（6分类）'}};
+let FM={},DATA=null,CHS=[];
+let MON={spend:true,sales:true,cr:true};
+let ACAT=new Set(ORDER),ATIER=new Set(['all','1','2','3','4','5','6']);
+
+function goPg(id){
+  document.querySelectorAll('.na[data-pg]').forEach(n=>n.classList.toggle('on',n.dataset.pg===id));
+  document.querySelectorAll('.pn').forEach(p=>p.classList.toggle('on',p.id==='pn-'+id));
+  document.getElementById('pgT').textContent=PMETA[id].t;
+  document.getElementById('pgS').textContent=PMETA[id].s;
+  const has=!!DATA;
+  document.getElementById('dc').style.display=has&&id==='dash'?'block':'none';
+  document.getElementById('btnRe').style.display=has&&id==='dash'?'flex':'none';
+}
+document.querySelectorAll('.na[data-pg]').forEach(n=>n.addEventListener('click',()=>goPg(n.dataset.pg)));
+
+// ── 文件处理 ──
+const dz=document.getElementById('dz');
+const fi=document.getElementById('fi');
+document.getElementById('btnPick').onclick=e=>{e.preventDefault();e.stopPropagation();fi.click();};
+fi.addEventListener('change',function(){if(this.files&&this.files.length)addF([...this.files]);this.value='';});
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('ov');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('ov'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('ov');addF([...e.dataTransfer.files]);});
+document.getElementById('btnClr').onclick=()=>{FM={};renderFL();};
+document.getElementById('btnRe').onclick=()=>{
+  DATA=null;
+  document.getElementById('nd').style.display='flex';
+  document.getElementById('db').style.display='none';
+  document.getElementById('pw').classList.remove('on');
+  document.getElementById('pt').classList.remove('on');
+  document.getElementById('pb').style.width='0%';
+  document.getElementById('btnGo').classList.add('on');
+  goPg('imp');
+};
+
+function dFromName(n){const m=n.match(/(\d{1,2})[_\-.](\d{1,2})/);return m?`${+m[1]}/${+m[2]}`:null;}
+function addF(files){
+  files.forEach(f=>{if(f.name.match(/\.xlsx?$/i)&&!FM[f.name])FM[f.name]={file:f,date:dFromName(f.name)};});
+  renderFL();
+}
+function renderFL(){
+  const ents=Object.values(FM).sort((a,b)=>{
+    const p=d=>{if(!d)return 0;const[m,dy]=d.split('/').map(Number);return m*100+dy;};
+    return p(a.date)-p(b.date);
+  });
+  document.getElementById('fct').textContent=ents.length;
+  const fw=document.getElementById('fw');
+  if(!ents.length){fw.style.display='none';document.getElementById('btnGo').classList.remove('on');return;}
+  fw.style.display='block';
+  document.getElementById('cs').innerHTML=ents.map(u=>{
+    const lbl=(u.date?u.date+' · ':'')+u.file.name.replace(/\.xlsx?$/i,'');
+    return `<div class="ch"><span class="cd"></span>${lbl}<span class="cx" data-n="${u.file.name}">×</span></div>`;
+  }).join('');
+  document.querySelectorAll('.ch .cx').forEach(el=>el.addEventListener('click',()=>{delete FM[el.dataset.n];renderFL();}));
+  document.getElementById('btnGo').classList.add('on');
+}
+
+// ── 数据处理 ──
+function toN(v){const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n;}
+function nSku(s){
+  if(typeof s!=='string')return null;
+  s=s.replace(/ACP0?$/,'').replace(/WCP0?$/,'W').replace(/KCP0?$/,'K').replace(/TCP0?$/,'T').replace(/CP0?$/,'').replace(/(SY|A0[12])$/,'');
+  return s.trim()||null;
+}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0;}
+function avgA(a){const v=a.filter(x=>x>0);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0;}
+function setP(pct,msg){
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('pt').textContent=msg;
+  if(pct>0){document.getElementById('pw').classList.add('on');document.getElementById('pt').classList.add('on');}
+}
+function classify(sales,spend,cr){
+  const n=sales.length;if(!n)return{cat:'低基数正常运营',sig:'数据不足'};
+  const ts=sales[n-1],tsp=spend[n-1],tcr=cr[n-1];
+  const p3s=n>3?avg(sales.slice(-4,-1)):avg(sales.slice(0,-1));
+  const p3sp=n>3?avg(spend.slice(-4,-1)):avg(spend.slice(0,-1));
+  const p3cr=n>3?avg(cr.slice(-4,-1)):avg(cr.slice(0,-1));
+  const p1s=n>=2?sales[n-2]:sales[n-1];
+  const nr3s=avg(sales.slice(Math.max(0,n-3)));
+  const nr3sp=avg(spend.slice(Math.max(0,n-3)));
+  const nr3cr=avg(cr.slice(Math.max(0,n-3)));
+  const b7s=Math.max(0,n-10),b7e=Math.max(0,n-3);
+  const bf7s=b7e>b7s?avg(sales.slice(b7s,b7e)):p3s;
+  const bf7sp=b7e>b7s?avg(spend.slice(b7s,b7e)):p3sp;
+  const bf7cr=b7e>b7s?avg(cr.slice(b7s,b7e)):p3cr;
+  const ha=avgA(sales);
+  if(ha<8)return{cat:'低基数正常运营',sig:`日均${ha.toFixed(1)}<8`};
+  if(ts>=p3s*1.8&&p3s>=8)return{cat:'广告销量增长',sig:`今日${ts.toFixed(0)}≥前3均×180%`};
+  if(ts>=p1s*2.0&&p3s>=8)return{cat:'广告销量增长',sig:`今日${ts.toFixed(0)}≥前1日×200%`};
+  if(bf7s>0&&nr3s>=bf7s*1.5)return{cat:'广告销量增长',sig:`近3均${nr3s.toFixed(0)}≥前7均×150%`};
+  if(ts<5)return{cat:'广告销量下滑',sig:`今日销量${ts.toFixed(0)}<5`};
+  if(p3s>0&&ts<=p3s*0.6)return{cat:'广告销量下滑',sig:`今日${ts.toFixed(0)}≤前3均×60%`};
+  if(p1s>0&&ts<=p1s*0.5)return{cat:'广告销量下滑',sig:`今日${ts.toFixed(0)}≤前1日×50%`};
+  if(bf7s>0&&nr3s<=bf7s*0.7)return{cat:'广告销量下滑',sig:`近3均${nr3s.toFixed(0)}≤前7均×70%`};
+  if(tsp<=30)return{cat:'花费骤降',sig:`今日花费$${tsp.toFixed(0)}≤$30`};
+  if(p3sp>0&&tsp<=p3sp*0.5)return{cat:'花费骤降',sig:'今日花费≤前3均×50%'};
+  if(bf7sp>0&&nr3sp<=bf7sp*0.8)return{cat:'花费骤降',sig:'近3均花费≤前7均×80%'};
+  if(tcr<4)return{cat:'转化率走低显著',sig:`今日CR${tcr.toFixed(1)}%<4%`};
+  if(p3cr>0&&tcr<=p3cr*0.7)return{cat:'转化率走低显著',sig:'今日CR≤前3均×70%'};
+  if(bf7cr>0&&nr3cr<=bf7cr*0.8)return{cat:'转化率走低显著',sig:`近3均CR${nr3cr.toFixed(1)}%≤前7均×80%`};
+  return{cat:'无异常成熟产品',sig:'数据平稳无明显异动'};
+}
+
+document.getElementById('btnGo').addEventListener('click',analyze);
+async function analyze(){
+  const ents=Object.values(FM).sort((a,b)=>{
+    const p=d=>{if(!d)return 0;const[m,dy]=d.split('/').map(Number);return m*100+dy;};
+    return p(a.date)-p(b.date);
+  });
+  if(!ents.length)return;
+  const recs=[],dates=[];
+  for(let i=0;i<ents.length;i++){
+    const u=ents[i];
+    setP(Math.round(5+i/ents.length*70),`解析 ${u.file.name}…`);
+    await new Promise(r=>setTimeout(r,10));
+    try{
+      const buf=await u.file.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:0,raw:true});
+      const date=u.date||`文件${i+1}`;
+      if(!dates.includes(date))dates.push(date);
+      for(const row of rows){
+        const sku=nSku(String(row['产品线SKU']||row['SKU']||'').trim());
+        if(!sku)continue;
+        const sp=toN(row['实际花费']),sl=toN(row['实际广告销量']),cr=toN(row['实际广告转化率'])*100;
+        if(sp===0&&sl===0)continue;
+        recs.push({date,sku,sp,sl,cr});
+      }
+    }catch(e){console.error(u.file.name,e);}
+  }
+  setP(82,'聚合数据…');await new Promise(r=>setTimeout(r,10));
+  const agg={};
+  for(const r of recs){
+    const k=r.sku+'||'+r.date;
+    if(!agg[k])agg[k]={sku:r.sku,date:r.date,sp:0,sl:0,cr:0,crN:0};
+    agg[k].sp+=r.sp;agg[k].sl+=r.sl;
+    if(r.cr>0){agg[k].cr+=r.cr;agg[k].crN++;}
+  }
+  const pm={};
+  for(const r of Object.values(agg)){
+    if(r.crN>0)r.cr/=r.crN;
+    if(!pm[r.sku])pm[r.sku]={};
+    pm[r.sku][r.date]=r;
+  }
+  const skus=Object.keys(pm).filter(s=>dates.reduce((sum,d)=>sum+(pm[s][d]?.sp||0),0)>=10);
+  setP(92,'异动诊断…');await new Promise(r=>setTimeout(r,10));
+  const products=skus.map(sku=>{
+    const spend=dates.map(d=>+(pm[sku][d]?.sp||0).toFixed(1));
+    const sales=dates.map(d=>+(pm[sku][d]?.sl||0).toFixed(0));
+    const cr=dates.map(d=>+(pm[sku][d]?.cr||0).toFixed(2));
+    const {cat,sig}=classify(sales,spend,cr);
+    return{sku,nm:sku,t:4,spend,sales,cr,dates,cat,sig,avgS:avgA(sales)};
+  });
+  setP(100,'完成！');await new Promise(r=>setTimeout(r,300));
+  DATA={products,dates};
+  renderDash();
+  goPg('dash');
+}
+
+// ── 渲染看板 ──
+function norm(arr){const mn=Math.min(...arr),mx=Math.max(...arr);if(mx===mn)return arr.map(()=>50);return arr.map(v=>(v-mn)/(mx-mn)*80+10);}
+
+function renderDash(){
+  CHS.forEach(c=>{try{c.destroy();}catch(e){}});CHS=[];
+  const{products,dates}=DATA;
+  document.getElementById('nd').style.display='none';
+  document.getElementById('db').style.display='block';
+  document.getElementById('dc').textContent=dates.length===1?dates[0]:`${dates[0]} → ${dates[dates.length-1]}`;
+  const groups={};ORDER.forEach(c=>groups[c]=[]);
+  products.forEach(p=>groups[p.cat].push(p));
+  ORDER.forEach(c=>groups[c].sort((a,b)=>a.t-b.t||b.avgS-a.avgS));
+  const tSp=products.reduce((s,p)=>s+(p.spend[p.spend.length-1]||0),0);
+  const tSl=products.reduce((s,p)=>s+(p.sales[p.sales.length-1]||0),0);
+  document.getElementById('sr').innerHTML=
+    `<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#38bdf8,#a78bfa)"></div><div class="sl">产品总数</div><div class="sv">${products.length}</div><div class="sd2">共 ${dates.length} 天数据</div></div>`+
+    `<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#a78bfa"></div><div class="sl">最新日花费</div><div class="sv" style="color:#a78bfa">$${tSp.toFixed(0)}</div><div class="sd2">所有产品合计</div></div>`+
+    `<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:#f59e0b"></div><div class="sl">最新日销量</div><div class="sv" style="color:#f59e0b">${tSl.toFixed(0)}</div><div class="sd2">所有产品合计</div></div>`+
+    ORDER.map(c=>`<div class="sc"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${CATS[c].c}"></div><div class="sl">${c}</div><div class="sv" style="color:${CATS[c].c}">${groups[c].length}</div><div class="sd2">个产品</div></div>`).join('');
+  buildCatBar();
+  renderSecs(groups);
+}
+
+function buildCatBar(){
+  const bar=document.getElementById('catbar');
+  bar.querySelectorAll('.ft').forEach(b=>b.remove());
+  const ab=document.createElement('button');ab.className='ft';ab.textContent='全部';
+  ab.style.cssText=ACAT.size===ORDER.length?'background:var(--tx);color:#0d0f14;border-color:var(--tx)':'';
+  ab.onclick=()=>{ACAT=ACAT.size===ORDER.length?new Set():new Set(ORDER);buildCatBar();rerender();};
+  bar.appendChild(ab);
+  ORDER.forEach(c=>{
+    const cfg=CATS[c],btn=document.createElement('button');btn.className='ft';btn.textContent=c;
+    btn.style.cssText=ACAT.has(c)?`background:${cfg.c};color:#0d0f14;border-color:${cfg.c}`:`border-color:${cfg.c};color:${cfg.c}`;
+    btn.onclick=()=>{ACAT.has(c)?ACAT.delete(c):ACAT.add(c);buildCatBar();rerender();};
+    bar.appendChild(btn);
+  });
+}
+
+function togM(m){
+  const on=Object.values(MON).filter(Boolean).length;
+  if(MON[m]&&on===1)return;
+  MON[m]=!MON[m];
+  const btn=document.getElementById('mb-'+m);
+  if(MON[m]){btn.classList.add('on');btn.querySelector('.tk').style.opacity='.85';
+    btn.style.background=m==='spend'?'rgba(167,139,250,.12)':m==='sales'?'rgba(245,158,11,.1)':'rgba(34,217,122,.1)';}
+  else{btn.classList.remove('on');btn.querySelector('.tk').style.opacity='0';btn.style.background='transparent';}
+  rerender();
+}
+
+function togT(t){
+  if(t==='all'){
+    if(ATIER.has('all')){ATIER=new Set();document.querySelectorAll('.tb[data-tr]').forEach(b=>{b.classList.remove('on');b.querySelector('.tk').style.opacity='0';b.style.background='transparent';});}
+    else{ATIER=new Set(['all','1','2','3','4','5','6']);document.querySelectorAll('.tb[data-tr]').forEach(b=>{b.classList.add('on');b.querySelector('.tk').style.opacity='.85';});}
+    rerender();return;
+  }
+  if(ATIER.has(t))ATIER.delete(t);else ATIER.add(t);
+  if(['1','2','3','4','5','6'].every(x=>ATIER.has(x)))ATIER.add('all');else ATIER.delete('all');
+  document.querySelectorAll('.tb[data-tr]').forEach(b=>{
+    const on=ATIER.has(b.dataset.tr);b.classList.toggle('on',on);
+    b.querySelector('.tk').style.opacity=on?'.85':'0';
+    if(!on&&b.dataset.tr!=='all')b.style.background='transparent';
+  });
+  rerender();
+}
+
+function rerender(){
+  if(!DATA)return;
+  const groups={};ORDER.forEach(c=>groups[c]=[]);
+  DATA.products.forEach(p=>groups[p.cat].push(p));
+  ORDER.forEach(c=>groups[c].sort((a,b)=>a.t-b.t||b.avgS-a.avgS));
+  renderSecs(groups);
+}
+
+function renderSecs(groups){
+  CHS.forEach(c=>{try{c.destroy();}catch(e){}});CHS=[];
+  const el=document.getElementById('secs');el.innerHTML='';
+  const show=ORDER.filter(c=>ACAT.has(c));
+  if(!show.length){el.innerHTML='<div style="text-align:center;padding:4rem;color:var(--mu);font-size:14px;font-weight:600">请至少选择一个分类</div>';return;}
+  const tasks=[];
+  show.forEach(cat=>{
+    const cfg=CATS[cat],allP=groups[cat]||[];
+    const prods=allP.filter(p=>ATIER.has('all')||ATIER.has(String(p.t)));
+    const hid=allP.length-prods.length;
+    const sec=document.createElement('div');sec.className='sec';
+    const hs=hid>0?` <span style="color:var(--di);font-size:11px">（已过滤 ${hid} 个）</span>`:'';
+    sec.innerHTML=
+      `<div class="sh"><span class="sp" style="background:${cfg.bg};color:${cfg.c};border:1.5px solid ${cfg.bd}">${cat}</span>`+
+      `<span class="sn">${prods.length} 个产品${hs}</span><span class="sd3">${cfg.desc}</span></div>`+
+      `<div class="sr2" style="border-color:${cfg.c}">${cfg.rules}</div>`+
+      (prods.length?`<div class="gr" id="g${cat.replace(/[^a-z0-9]/gi,'_')}"></div>`:'<div style="text-align:center;padding:1.5rem;color:var(--di);font-size:13px;font-weight:600">当前定位筛选下无产品</div>');
+    el.appendChild(sec);
+    if(!prods.length)return;
+    const grid=sec.querySelector('.gr');
+    prods.forEach((p,i)=>{
+      const cid=`cv${cat.replace(/[^a-z0-9]/gi,'_')}${i}`;
+      const sl=p.spend[p.spend.length-1]||0,ql=p.sales[p.sales.length-1]||0,cl=p.cr[p.cr.length-1]||0;
+      const mets=[];
+      if(MON.spend)mets.push({v:`$${sl.toFixed(0)}`,l:'花费',c:CS});
+      if(MON.sales)mets.push({v:`${ql.toFixed(0)}`,l:'销量',c:cfg.qc});
+      if(MON.cr)   mets.push({v:`${cl.toFixed(1)}%`,l:'CR',c:CC});
+      const card=document.createElement('div');card.className='pc';
+      card.innerHTML=
+        `<div class="ph"><div style="min-width:0;flex:1"><div class="pn2">${p.nm}</div></div>`+
+        `<div class="pbg"><div class="pd2" style="background:${cfg.c};box-shadow:0 0 6px ${cfg.c}99"></div>`+
+        `<span class="tg t${p.t}">${TL[p.t]||'其他'}</span>`+
+        `<span class="sg" style="background:${cfg.bg};color:${cfg.c};border:1px solid ${cfg.bd}">${p.sig}</span></div></div>`+
+        `<div class="cw"><canvas id="${cid}"></canvas></div>`+
+        `<div class="mr" style="grid-template-columns:repeat(${mets.length},1fr)">`+
+        mets.map(m=>`<div class="me"><span class="mv" style="color:${m.c}">${m.v}</span><span class="ml">${m.l}</span></div>`).join('')+`</div>`;
+      grid.appendChild(card);
+      tasks.push({cid,p,cfg});
+    });
+  });
+  // 宽度用计算值不依赖DOM，300ms只需等DOM插入完成即可
+  setTimeout(()=>tasks.forEach(t=>drawChart(t.cid,t.p,t.cfg)),300);
+}
+
+function drawChart(cid,p,cfg){
+  const canvas=document.getElementById(cid);
+  if(!canvas)return;
+  // 直接计算固定宽度，不依赖DOM测量
+  // 主内容区宽度 = 视口宽 - sidebar(224px) - padding(64px) - gaps
+  // 5列时每列约 (vw-288-48)/5，用保守估算200px保证不为0
+  const vw=window.innerWidth||1200;
+  const cols=vw>=1400?5:vw>=1100?4:vw>=760?3:2;
+  const totalW=vw-224-64; // 减去sidebar和padding
+  const gap=12*(cols-1);
+  const w=Math.floor((totalW-gap)/cols);
+  const safeW=Math.max(w,160); // 最小160px
+  const h=84;
+  canvas.style.width=safeW+'px';
+  canvas.style.height=h+'px';
+  canvas.width=safeW;
+  canvas.height=h;
+  const ak=['spend','sales','cr'].filter(k=>MON[k]);
+  const oS=[...p.spend],oQ=[...p.sales],oC=[...p.cr];
+  const ds=[];
+  if(MON.spend)ds.push({data:norm(p.spend),orig:oS,borderColor:CS,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:CS,tension:.35,fill:false});
+  if(MON.sales)ds.push({data:norm(p.sales),orig:oQ,borderColor:cfg.qc,borderWidth:1.8,pointRadius:2.5,pointBackgroundColor:cfg.qc,tension:.35,fill:false});
+  if(MON.cr)   ds.push({data:norm(p.cr),orig:oC,borderColor:CC,borderWidth:1.5,pointRadius:2,pointBackgroundColor:CC,tension:.35,fill:false,borderDash:[5,3]});
+  try{
+    const ch=new Chart(canvas,{
+      type:'line',data:{labels:p.dates,datasets:ds},
+      options:{
+        responsive:false,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},animation:{duration:150},
+        plugins:{legend:{display:false},tooltip:{
+          backgroundColor:'#1c2030',borderColor:'rgba(255,255,255,.15)',borderWidth:1,
+          titleColor:'#c0c8d8',bodyColor:'#eceef4',padding:9,
+          titleFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'700'},
+          bodyFont:{size:12,family:'Microsoft YaHei,sans-serif',weight:'600'},
+          callbacks:{
+            title:c=>c[0].label,
+            label:c=>{const k=ak[c.datasetIndex],orig=ds[c.datasetIndex].orig[c.dataIndex];
+              return k==='spend'?`花费: $${orig.toFixed(0)}`:k==='sales'?`销量: ${orig.toFixed(0)}`:`CR: ${orig.toFixed(1)}%`;}
+          }
+        }},
+        scales:{
+          x:{ticks:{color:'#8b95a8',font:{size:9,family:'Microsoft YaHei,sans-serif'},maxTicksLimit:6,maxRotation:0},grid:{display:false},border:{color:'rgba(255,255,255,.05)'}},
+          y:{display:false,min:0,max:100}
+        }
+      }
+    });
+    CHS.push(ch);
+  }catch(e){console.error('Chart error:',cid,e);}
+}
+</script>
+</body>
+</html>
